@@ -83,7 +83,7 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 .quiz-trap { position: absolute; width: 1px; height: 1px; overflow: clip; clip-path: inset(50%); }
 .quiz-phone-row { box-sizing: border-box; display: flex; align-items: center; min-width: 0; height: 56px; min-height: 56px; border: 1px solid var(--color-rule-2); border-radius: var(--quiz-radius); background: var(--color-light); }
 .quiz-phone-row:hover { border-color: var(--color-ink-2); }
-.quiz-phone-row:focus-within { border-color: var(--color-focus); outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.quiz-phone-row:focus-within { border-color: #66a9e3; outline: none; }
 .quiz-phone-row:has(input[aria-invalid=true]) { border-color: var(--quiz-error); }
 .quiz-phone-row select { box-sizing: border-box; flex: 0 0 104px; width: 104px; min-width: 0; height: 100%; padding: 0 8px; border: 0; border-right: 1px solid var(--color-rule); border-radius: 0; background: transparent; color: var(--color-ink); font: 500 15px var(--font-body); cursor: pointer; }
 .quiz-phone-row select:disabled { background: var(--color-paper-2); color: var(--color-ink-2); cursor: wait; }
@@ -129,7 +129,7 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 
 /* Состояния для отдельного визуального стенда компонента. */
 .quiz-phone-row.is-hover { border-color: var(--color-ink-2); }
-.quiz-phone-row.is-focus { border-color: var(--color-focus); outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.quiz-phone-row.is-focus { border-color: #66a9e3; outline: none; }
 .quiz-phone-row.is-active { border-color: var(--color-accent); }
 .quiz-primary.is-loading { background: var(--color-rule); color: var(--color-ink-2); cursor: wait; }
 /* Упрощенная навигация и контактный шаг по правкам владельца. */
@@ -159,6 +159,10 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 /* Единая высота всех шагов: определяется по самому высокому содержимому. */
 .quiz-dialog[data-sized] {
   --quiz-window-gap: 32px;
+  position: fixed;
+  margin-block: 0;
+  inset-block-end: auto;
+  inset-block-start: calc(var(--quiz-viewport-offset, 0px) + (var(--quiz-available-height, 100dvh) - min(var(--quiz-fixed-height), calc(var(--quiz-available-height, 100dvh) - var(--quiz-window-gap)))) / 2);
   height: min(var(--quiz-fixed-height), calc(var(--quiz-available-height, 100dvh) - var(--quiz-window-gap)));
   max-height: calc(var(--quiz-available-height, 100dvh) - var(--quiz-window-gap));
   overflow: hidden;
@@ -185,3 +189,8 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 .quiz-dialog .quiz-phone-row { height: 48px; min-height: 48px; }
 .quiz-dialog .quiz-phone-number input { padding-block: 12px; }
 .quiz-dialog[data-sized] .quiz-content { touch-action: pan-y; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+
+/* Активные поля сохраняют тонкую границу без дополнительной обводки. */
+.quiz-dialog .quiz-field :is(input, select):focus { outline: none; box-shadow: none; }
+.quiz-dialog .quiz-field > input:focus { border-color: #66a9e3; }
+.quiz-dialog .quiz-phone-row:focus-within { border-color: #66a9e3; outline: none; box-shadow: none; }

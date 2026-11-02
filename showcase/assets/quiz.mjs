@@ -249,7 +249,8 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     const label = node('label', { class: `quiz-choice quiz-messenger-choice${isSelected ? ' is-selected' : ''}` });
     const radio = node('input', { type: 'radio', name: 'messenger', value: method, class: 'quiz-messenger-radio' });
     radio.checked = isSelected;
-    radio.addEventListener('change', () => { messenger = method; persist(); render(); dialog.querySelector('#quiz-contact').focus(); });
+    // Выбор мессенджера не открывает клавиатуру: поле активируется только по нажатию.
+    radio.addEventListener('change', () => { messenger = method; persist(); render(); });
     const icon = createMessengerIcon(method);
     label.append(radio, icon, node('span', { class: 'quiz-messenger-text' }, method === 'whatsapp' ? 'WhatsApp' : 'Telegram'));
     fieldset.append(label);
@@ -375,7 +376,18 @@ function sizeQuiz() {
   } finally { for (const surface of shells) surface.remove(); }
 }
 function updateAvailableHeight() {
-  dialog.style.setProperty('--quiz-available-height', `${Math.floor(window.visualViewport?.height || window.innerHeight)}px`);
+  const viewport = window.visualViewport;
+  dialog.style.setProperty('--quiz-available-height', `${Math.floor(viewport?.height || window.innerHeight)}px`);
+  dialog.style.setProperty('--quiz-viewport-offset', `${Math.max(0, viewport?.offsetTop || 0)}px`);
+  if (!dialog.open) return;
+  // Прокручивается только содержимое квиза, без переноса окна браузером к полю.
+  const input = document.activeElement;
+  const content = input?.closest('.quiz-content');
+  if (!content || !input.matches('input:not([type=radio]):not([type=checkbox]), select')) return;
+  const field = input.getBoundingClientRect();
+  const area = content.getBoundingClientRect();
+  if (field.bottom > area.bottom - 12) content.scrollTop += field.bottom - area.bottom + 12;
+  else if (field.top < area.top + 12) content.scrollTop -= area.top + 12 - field.top;
 }
 function queueSizing() {
   cancelAnimationFrame(sizingFrame);
@@ -386,6 +398,8 @@ new ResizeObserver(() => {
 }).observe(dialog);
 window.addEventListener('resize', () => { updateAvailableHeight(); queueSizing(); });
 window.visualViewport?.addEventListener('resize', updateAvailableHeight);
+window.visualViewport?.addEventListener('scroll', updateAvailableHeight);
+dialog.addEventListener('focusin', () => requestAnimationFrame(updateAvailableHeight));
 document.fonts.ready.then(queueSizing);
 document.fonts.addEventListener('loadingdone', queueSizing);
 function openQuiz() {

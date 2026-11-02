@@ -80,7 +80,7 @@ export function createPhoneField({ input, lang, text, state, onCountry, onInput,
       const parsed = tools.parsePhoneNumberFromString(input.value.trim());
       if (parsed) input.value = parsed.nationalNumber;
     }
-    onInput(input.value); onCountry(); update(); onError(''); input.focus();
+    onInput(input.value); onCountry(); update(); onError(''); input.focus({ preventScroll: true });
   });
   input.addEventListener('input', () => {
     state.hasInput = Boolean(input.value.trim());
