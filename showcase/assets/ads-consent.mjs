@@ -3,12 +3,12 @@ import { CONSENT_VERSION, readPreferences, createAdsConsent } from './ads-consen
 const storageKey = 'deniz-cookie-consent';
 const english = document.documentElement.lang === 'en';
 const text = english ? {
-  title: 'Cookie preferences', description: 'Necessary cookies support this website. Optional cookies help analyse visits and measure advertising. Choose which you allow.',
-  accept: 'Accept all', reject: 'Reject optional', settings: 'Customise', save: 'Save preferences', privacy: 'Privacy policy',
+  title: 'Cookies', description: 'We use cookies to run this website and measure advertising.',
+  accept: 'Accept all', reject: 'Reject optional', settings: 'Details and settings', save: 'Save preferences', privacy: 'Privacy policy',
   necessary: 'Necessary — always enabled', analytics: 'Allow visit analytics', marketing: 'Allow advertising measurement and personalisation', change: 'Cookie settings'
 } : {
-  title: 'Настройки cookie', description: 'Необходимые cookie обеспечивают работу сайта. Дополнительные помогают анализировать посещения и измерять рекламу. Выберите, какие разрешить.',
-  accept: 'Принять все', reject: 'Только необходимые', settings: 'Настроить', save: 'Сохранить выбор', privacy: 'Политика обработки данных',
+  title: 'Cookie', description: 'Используем cookie для работы сайта и измерения рекламы.',
+  accept: 'Принять все', reject: 'Отклонить', settings: 'Подробнее и настройки', save: 'Сохранить выбор', privacy: 'Политика обработки данных',
   necessary: 'Необходимые — включены всегда', analytics: 'Разрешить статистику посещений', marketing: 'Разрешить измерение и персонализацию рекламы', change: 'Настройки cookie'
 };
 window.dataLayer = window.dataLayer || [];
@@ -37,7 +37,9 @@ const title = element('h2', 'cookie-title', text.title); title.id = 'cookie-titl
 const description = element('p', 'cookie-description', text.description);
 const policy = element('a', '', text.privacy); policy.href = english ? '/en/privacy' : '/privacy';
 policy.target = '_blank'; policy.rel = 'noopener';
-const choices = element('div', 'cookie-choices'); choices.hidden = true;
+const details = element('div', 'cookie-details'); details.id = 'cookie-details'; details.hidden = true;
+const choices = element('div', 'cookie-choices');
+details.append(policy, choices);
 function choice(label, disabled = false) {
   const row = element('label'); const input = document.createElement('input');
   input.type = 'checkbox'; input.disabled = disabled; input.checked = disabled;
@@ -65,16 +67,21 @@ const saveButton = button(text.save, () => save(analytics.checked, marketing.che
 const accept = button(text.accept, () => save(true, true));
 const reject = button(text.reject, () => save(false, false));
 const settings = button(text.settings, () => {
-  choices.hidden = false; saveButton.hidden = false;
+  details.hidden = !details.hidden; saveButton.hidden = details.hidden;
+  settings.setAttribute('aria-expanded', String(!details.hidden));
   analytics.checked = preferences?.analytics === true; marketing.checked = preferences?.marketing === true;
-  analytics.focus();
+  if (!details.hidden) analytics.focus();
 });
-actions.append(accept, reject, settings, saveButton);
-panel.append(title, description, policy, choices, actions); panel.hidden = Boolean(preferences);
+settings.className = 'cookie-details-link';
+settings.setAttribute('aria-expanded', 'false');
+settings.setAttribute('aria-controls', 'cookie-details');
+actions.append(accept, reject, saveButton);
+panel.append(title, description, settings, details, actions); panel.hidden = Boolean(preferences);
 document.body.append(panel);
 const change = button(text.change, () => {
   focusBefore = document.activeElement;
-  panel.hidden = false; choices.hidden = false; saveButton.hidden = false;
+  panel.hidden = false; details.hidden = false; saveButton.hidden = false;
+  settings.setAttribute('aria-expanded', 'true');
   analytics.checked = preferences?.analytics === true; marketing.checked = preferences?.marketing === true;
   analytics.focus();
 });

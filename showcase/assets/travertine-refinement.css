@@ -71,7 +71,13 @@
 
 /* Общие стили страницы Warm Travertine */
 .travertine-page {
-  background: var(--color-paper);
+  background: #111c26;
+}
+
+/* Единая прокрутка без светлого фона за фотографией при отскоке. */
+html:has(.travertine-page) {
+  background: #111c26;
+  overscroll-behavior-y: none;
 }
 
 /* Десктопная архитектура: полноэкранная фотография со слайдами (100% экрана) и контент поверх */
@@ -79,8 +85,8 @@
   position: relative;
   width: 100%;
   min-height: 100svh;
-  height: 100svh;
-  overflow: hidden;
+  height: auto;
+  overflow: clip;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -100,7 +106,6 @@ header {
   padding: 24px var(--travertine-gutter) 28px;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--travertine-header-rule);
   gap: 16px;
 }
 
@@ -172,10 +177,10 @@ header .brand-svg-logo path[fill="#1C2445"] {
 
 /* Слайдер на десктопе занимает 100% экрана */
 .arch-wrapper {
-  position: fixed;
+  position: absolute;
   inset: 0;
   width: 100%;
-  height: 100svh;
+  height: 100%;
   z-index: 0;
   pointer-events: none;
   margin: 0;
@@ -362,7 +367,7 @@ footer {
   z-index: 5;
   flex: 0 0 auto;
   background: transparent;
-  border-top: 1px solid var(--travertine-header-rule);
+  border: 0;
   color: var(--travertine-muted);
   padding: 16px var(--travertine-gutter) 20px;
   display: flex;
@@ -404,7 +409,7 @@ footer {
   .viewport {
     height: auto;
     min-height: 100svh;
-    overflow-y: auto;
+    overflow: clip;
   }
   .intro-column {
     gap: 12px;
@@ -554,7 +559,7 @@ footer {
 
   footer {
     background: var(--color-paper);
-    border-top: 1px solid var(--color-rule);
+    border: 0;
     color: var(--color-muted);
     padding: 24px var(--travertine-gutter) 32px;
     flex-direction: column;
