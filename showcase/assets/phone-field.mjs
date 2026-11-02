@@ -20,7 +20,7 @@ export function phoneValue(value, country, tools) {
   const parsed = tools.parsePhoneNumberFromString(value.trim(), { defaultCountry: country, extract: false });
   return parsed?.isPossible() ? parsed.number : null;
 }
-export function createPhoneField({ input, lang, text, state, onCountry, onInput, onError }) {
+export function createPhoneField({ input, lang, text, state, onCountry, onInput, onError, staticOnly = false }) {
   const row = document.createElement('div');
   row.className = 'quiz-phone-row';
   const select = document.createElement('select');
@@ -43,6 +43,8 @@ export function createPhoneField({ input, lang, text, state, onCountry, onInput,
   hint.className = 'quiz-hint'; hint.id = 'quiz-country-status'; hint.setAttribute('aria-live', 'polite');
   hint.textContent = text.phoneHint || '';
   input.setAttribute('aria-describedby', 'quiz-country-status quiz-error');
+  // Геометрия поля для скрытого измерения квиза без загрузки библиотеки и GeoIP-запроса.
+  if (staticOnly) return { row, hint };
   const update = () => {
     select.value = state.country;
     for (const option of select.options) option.label = option.value === state.country ? `${state.country} +${tools?.getCountryCallingCode(state.country) || fallback[state.country] || ''}` : option.textContent;

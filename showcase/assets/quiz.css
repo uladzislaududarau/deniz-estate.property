@@ -153,3 +153,26 @@ body.quiz-open { overflow-y: hidden; }
 .quiz-back-link { min-height: 44px; padding: 8px 16px; border: 0; background: transparent; color: var(--color-muted); font-size: 13px; line-height: 1.4; font-weight: 400; cursor: pointer; }
 .quiz-back-link:hover { color: var(--color-ink-2); text-decoration: underline; text-underline-offset: 3px; }
 .quiz-back-link:active { color: var(--color-ink); }
+
+/* Единая высота всех шагов: определяется по самому высокому содержимому. */
+.quiz-dialog[data-sized] {
+  --quiz-window-gap: 32px;
+  height: min(var(--quiz-fixed-height), calc(var(--quiz-available-height, 100dvh) - var(--quiz-window-gap)));
+  max-height: calc(var(--quiz-available-height, 100dvh) - var(--quiz-window-gap));
+  overflow: hidden;
+}
+.quiz-dialog[data-sized] .quiz-shell { box-sizing: border-box; display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.quiz-dialog[data-sized] .quiz-top,
+.quiz-dialog[data-sized] .quiz-progress,
+.quiz-dialog[data-sized] .quiz-actions,
+.quiz-dialog[data-sized] .quiz-success-links { flex-shrink: 0; }
+.quiz-dialog[data-sized] .quiz-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.quiz-dialog[data-sized] .quiz-actions,
+.quiz-dialog[data-sized] .quiz-success-links { margin-top: 24px; }
+.quiz-measure { display: block; position: fixed; inset: 0 auto auto 0; margin: 0; height: auto; max-height: none; overflow: visible; visibility: hidden; pointer-events: none; box-shadow: none; }
+.quiz-measure .quiz-content { min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+@media (max-width: 560px) {
+  .quiz-dialog[data-sized] { --quiz-window-gap: 24px; }
+  .quiz-dialog[data-sized] .quiz-actions,
+  .quiz-dialog[data-sized] .quiz-success-links { margin-top: 20px; }
+}

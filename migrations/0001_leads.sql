@@ -1,5 +1,5 @@
 -- Контакты и ответы хранятся только внутри зашифрованного payload.
-CREATE TABLE leads (
+CREATE TABLE IF NOT EXISTS leads (
   id TEXT PRIMARY KEY,
   request_id TEXT NOT NULL UNIQUE,
   contact_hash TEXT NOT NULL,
@@ -13,11 +13,11 @@ CREATE TABLE leads (
   lease_token TEXT,
   last_error TEXT
 );
-CREATE INDEX leads_contact_created ON leads(contact_hash, created_at);
-CREATE INDEX leads_retry ON leads(next_attempt_at);
-CREATE TABLE lead_rate_limits (
+CREATE INDEX IF NOT EXISTS leads_contact_created ON leads(contact_hash, created_at);
+CREATE INDEX IF NOT EXISTS leads_retry ON leads(next_attempt_at);
+CREATE TABLE IF NOT EXISTS lead_rate_limits (
   bucket_key TEXT PRIMARY KEY,
   count INTEGER NOT NULL,
   expires_at INTEGER NOT NULL
 );
-CREATE INDEX lead_rate_expiry ON lead_rate_limits(expires_at);
+CREATE INDEX IF NOT EXISTS lead_rate_expiry ON lead_rate_limits(expires_at);

@@ -1,6 +1,5 @@
 import { validateLead } from '../server/schema.mjs';
 import { createCloudStore } from './store.mjs';
-import { channelConfigured } from './notifications.mjs';
 
 function json(status, body, extra = {}) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...extra } });
@@ -35,7 +34,7 @@ export function createWorker(storeFactory = createCloudStore) {
       if (request.method !== 'POST') return json(405, { code: 'method_not_allowed' }, { Allow: 'POST' });
       if (request.headers.get('Origin') !== url.origin || request.headers.get('Sec-Fetch-Site') === 'cross-site') return json(403, { code: 'invalid_origin' });
       if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json(415, { code: 'invalid_content_type' });
-      if (env.LEADS_ENABLED !== 'true' || (!channelConfigured('telegram', env) && !channelConfigured('email', env))) return json(503, { code: 'lead_service_not_configured' });
+      if (env.LEADS_ENABLED !== 'true') return json(503, { code: 'lead_service_not_configured' });
       try {
         const store = await storeFactory(env);
         if (!await store.rateLimit(request.headers.get('CF-Connecting-IP') || 'unknown')) return json(429, { code: 'rate_limited' }, { 'Retry-After': '60' });
@@ -55,7 +54,7 @@ export function createWorker(storeFactory = createCloudStore) {
       }
     },
     async scheduled(event, env, ctx) {
-      if (env.LEADS_ENABLED !== 'true' || !env.LEADS_DB || !env.LEAD_ENCRYPTION_KEY) return;
+      if (env.LEADS_ENABLED !== 'true' || !env.DB || !env.LEAD_ENCRYPTION_KEY) return;
       ctx.waitUntil((async () => {
         const store = await storeFactory(env);
         await store.cleanupRateLimits();

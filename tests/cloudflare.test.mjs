@@ -66,17 +66,28 @@ test('Worker использует страну Cloudflare, а не поддел�
   assert.deepEqual(await (await createWorker().fetch(req, {}, {})).json(), { country: 'ES', source: 'ip' });
 });
 
+test('После явного включения приёма ошибка конфигурации уведомлений не препятствует сохранению', async () => {
+  let saved = false; const background = [];
+  const worker = createWorker(async () => ({ rateLimit: async () => true,
+    save: async value => { saved = true; return { leadId: value.leadId, duplicate: false }; },
+    deliver: async () => {} }));
+  const response = await worker.fetch(request(payload()), { LEADS_ENABLED: 'true' }, { waitUntil(promise) { background.push(promise); } });
+  assert.equal(response.status, 200);
+  assert.equal(saved, true);
+  await Promise.all(background);
+});
+
 async function database(t) {
-  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response("ok"); } };', d1Databases: ['LEADS_DB'] }));
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response("ok"); } };', d1Databases: ['DB'] }));
   t.after(() => mf.dispose());
-  const db = await mf.getD1Database('LEADS_DB');
+  const db = await mf.getD1Database('DB');
   const sql = await readFile(new URL('../migrations/0001_leads.sql', import.meta.url), 'utf8');
   for (const statement of sql.split(';').filter(part => part.trim())) await db.prepare(statement).run();
   return db;
 }
 test('D1 сохраняет зашифрованный лид, исключает конкурентные дубли и ограничивает частоту', async t => {
   const db = await database(t);
-  const store = await createCloudStore({ LEADS_DB: db, LEAD_ENCRYPTION_KEY: secret });
+  const store = await createCloudStore({ DB: db, LEAD_ENCRYPTION_KEY: secret });
   const value = lead();
   const results = await Promise.all([store.save(value), store.save({ ...value, requestId: crypto.randomUUID(), leadId: crypto.randomUUID() })]);
   assert.equal(results[0].leadId, results[1].leadId);
@@ -89,10 +100,19 @@ test('D1 сохраняет зашифрованный лид, исключае�
   assert.equal((await db.prepare('SELECT bucket_key FROM lead_rate_limits').first()).bucket_key.includes('192.0.2.1'), false);
 });
 
+test('Повторное применение схемы не удаляет сохранённые заявки', async t => {
+  const db = await database(t);
+  const store = await createCloudStore({ DB: db, LEAD_ENCRYPTION_KEY: secret });
+  const saved = await store.save(lead());
+  const sql = await readFile(new URL('../migrations/0001_leads.sql', import.meta.url), 'utf8');
+  for (const statement of sql.split(';').filter(part => part.trim())) await db.prepare(statement).run();
+  assert.equal((await db.prepare('SELECT id FROM leads').first()).id, saved.leadId);
+});
+
 test('D1 повторяет неудачный Telegram, не отправляя успешный email повторно', async t => {
   const db = await database(t); let telegramFails = true; const sent = [];
-  const env = { LEADS_DB: db, LEAD_ENCRYPTION_KEY: secret, ...readyEnv,
-    RESEND_API_KEY: 'test-only', LEAD_EMAIL_FROM: 'test@example.com', LEAD_EMAIL_TO: 'receiver@example.com' };
+  const env = { DB: db, LEAD_ENCRYPTION_KEY: secret, ...readyEnv,
+    RESEND_API_KEY: 'test-only', LEAD_EMAIL_FROM: 'test@example.com', LEAD_NOTIFICATION_EMAILS: 'receiver@example.com' };
   const store = await createCloudStore(env, async (url, options) => {
     const email = url === 'https://api.resend.com/emails';
     sent.push({ email, options });
@@ -111,4 +131,27 @@ test('D1 повторяет неудачный Telegram, не отправляя
   assert.equal(sent.filter(item => item.email).length, 1);
   assert.equal(sent.find(item => item.email).options.headers['Idempotency-Key'], `deniz-lead/${value.leadId}`);
   assert.deepEqual(await store.pending(), []);
+});
+
+test('Сбой Resend не теряет сохранённый лид; повтор отправляет всем email без повторного Telegram', async t => {
+  const db = await database(t); let fails = true; const calls = [];
+  const env = { DB: db, LEAD_ENCRYPTION_KEY: secret, ...readyEnv,
+    RESEND_API_KEY: 'test-only', LEAD_EMAIL_FROM: 'Deniz Estate <leads@example.com>', LEAD_NOTIFICATION_EMAILS: 'one@example.com,two@example.com' };
+  const store = await createCloudStore(env, async (url, options) => {
+    calls.push({ url, options });
+    if (url === 'https://api.resend.com/emails') return fails ? Response.json({ error: 'unavailable' }, { status: 503 }) : Response.json({ id: 'test-email' });
+    return Response.json({ ok: true });
+  });
+  const value = lead(); const saved = await store.save(value);
+  await store.deliver(saved.leadId);
+  let row = await db.prepare('SELECT * FROM leads').first();
+  assert.equal(row.email_status, 'pending'); assert.equal(row.telegram_status, 'sent');
+  assert.equal((await decrypt((await keys(secret)).encryption, row.payload)).contact, value.contact);
+  fails = false;
+  await db.prepare('UPDATE leads SET next_attempt_at = 0').run();
+  await store.deliver(saved.leadId);
+  row = await db.prepare('SELECT * FROM leads').first();
+  assert.equal(row.email_status, 'sent');
+  assert.equal(calls.filter(call => call.url.includes('api.telegram.org')).length, 1);
+  for (const call of calls.filter(call => call.url === 'https://api.resend.com/emails')) assert.deepEqual(JSON.parse(call.options.body).to, ['one@example.com', 'two@example.com']);
 });

@@ -88,13 +88,8 @@ function heading(content, title) {
   content.append(h);
   return h;
 }
-function render() {
-  clearAdvance();
-  clearAutoClose();
-  phoneField?.cancel(); phoneField = undefined;
+function buildShell({ currentStep = step, currentMessenger = messenger, complete = success, measuring = false } = {}) {
   const t = copy[lang];
-  dialog.lang = lang;
-  dialog.dataset.stage = success ? 'success' : step === steps.length ? 'contact' : 'question';
   const shell = node('div', { class: 'quiz-shell' });
   const top = node('div', { class: 'quiz-top' });
   const logo = (document.querySelector('.brand-svg-logo')?.cloneNode(true)) || node('div', { class: 'quiz-brand' }, 'Deniz Estate');
@@ -110,13 +105,13 @@ function render() {
   // Линия подчеркивания / прогресс: видна и в процессе квиза, и в благодарности (100% заполнена)
   shell.append(node('progress', {
     class: 'quiz-progress',
-    value: success ? steps.length + 1 : step + 1,
+    value: complete ? steps.length + 1 : currentStep + 1,
     max: steps.length + 1,
     'aria-label': lang === 'ru' ? 'Прогресс подбора' : 'Selection progress'
   }));
 
   const content = node('div', { class: 'quiz-content' });
-  if (success) {
+  if (complete) {
     content.classList.add('quiz-success');
     heading(content, t.successTitle);
     content.append(node('p', { class: 'quiz-intro' }, t.successText), node('p', { class: 'quiz-intro' }, t.successMore));
@@ -146,17 +141,25 @@ function render() {
       ytLink.append(ytSvg, node('span', {}, t.youtube));
       actions.append(ytLink);
     }
-    content.append(actions);
-    shell.append(content);
+    shell.append(content, actions);
 
     // Автоматическое закрытие через 20 секунд с последующим сбросом
-    autoCloseTimer = setTimeout(() => {
+    if (!measuring) autoCloseTimer = setTimeout(() => {
       close();
     }, 20000);
   } else {
-    if (step < steps.length) renderQuestion(content, shell, t);
-    else renderContact(content, shell, t);
+    if (currentStep < steps.length) renderQuestion(content, shell, t, currentStep);
+    else renderContact(content, shell, t, { currentMessenger, measuring });
   }
+  return shell;
+}
+function render() {
+  clearAdvance();
+  clearAutoClose();
+  phoneField?.cancel(); phoneField = undefined;
+  dialog.lang = lang;
+  dialog.dataset.stage = success ? 'success' : step === steps.length ? 'contact' : 'question';
+  const shell = buildShell();
   dialog.replaceChildren(shell);
   dialog.scrollTop = 0;
   dialog.querySelector('#quiz-title')?.focus({ preventScroll: true });
@@ -164,8 +167,8 @@ function render() {
 function hasAnswer(question) {
   return question.multiple ? answers[question.id]?.length > 0 : Boolean(answers[question.id]);
 }
-function renderQuestion(content, shell, t) {
-  const question = steps[step];
+function renderQuestion(content, shell, t, currentStep = step) {
+  const question = steps[currentStep];
   heading(content, question.title[lang]);
   content.append(node('p', { class: 'quiz-intro' }, question.multiple ? t.multiple : t.single));
   const fieldset = node('fieldset', { class: 'quiz-options', 'aria-labelledby': 'quiz-title' });
@@ -197,7 +200,7 @@ function renderQuestion(content, shell, t) {
   }
   content.append(fieldset);
   const actions = node('div', { class: 'quiz-actions' });
-  if (step > 0) actions.append(button(t.back, 'quiz-secondary', () => { step--; persist(); render(); }));
+  if (currentStep > 0) actions.append(button(t.back, 'quiz-secondary', () => { step--; persist(); render(); }));
   actions.append(next);
   shell.append(content, actions);
 }
@@ -232,13 +235,13 @@ function createMessengerIcon(method) {
   return svg;
 }
 
-function renderContact(content, shell, t) {
+function renderContact(content, shell, t, { currentMessenger = messenger, measuring = false } = {}) {
   heading(content, t.contactTitle);
   content.append(node('p', { class: 'quiz-intro' }, t.contactIntro));
-  const form = node('form', { novalidate: '', 'aria-labelledby': 'quiz-title' });
+  const form = node('form', { id: 'quiz-lead-form', novalidate: '', 'aria-labelledby': 'quiz-title' });
   const fieldset = node('fieldset', { class: 'quiz-options quiz-messengers', 'aria-label': t.messenger });
   for (const method of ['whatsapp', 'telegram']) {
-    const isSelected = messenger === method;
+    const isSelected = currentMessenger === method;
     const label = node('label', { class: `quiz-choice quiz-messenger-choice${isSelected ? ' is-selected' : ''}` });
     const radio = node('input', { type: 'radio', name: 'messenger', value: method, class: 'quiz-messenger-radio' });
     radio.checked = isSelected;
@@ -249,23 +252,24 @@ function renderContact(content, shell, t) {
   }
   const nameField = node('div', { class: 'quiz-field quiz-name-field' });
   const nameInput = node('input', { id: 'quiz-name', name: 'name', type: 'text', autocomplete: 'given-name', autocapitalize: 'words', maxlength: 80, required: '', 'aria-describedby': 'quiz-error' });
-  nameInput.value = contactName;
+  nameInput.value = measuring ? '' : contactName;
   nameInput.addEventListener('input', () => { contactName = nameInput.value; nameInput.removeAttribute('aria-invalid'); error.textContent = ''; });
   nameField.append(node('label', { for: 'quiz-name' }, t.name), nameInput);
   const field = node('div', { class: 'quiz-field' });
-  const input = node('input', { id: 'quiz-contact', name: 'contact', type: messenger === 'whatsapp' ? 'tel' : 'text', autocomplete: messenger === 'whatsapp' ? 'tel' : 'off', maxlength: 64, required: '', 'aria-describedby': messenger === 'whatsapp' ? 'quiz-country-status quiz-error' : 'quiz-contact-hint quiz-error', placeholder: messenger === 'whatsapp' ? '+34 612 345 678' : '@username' });
-  input.value = contact[messenger];
+  const input = node('input', { id: 'quiz-contact', name: 'contact', type: currentMessenger === 'whatsapp' ? 'tel' : 'text', autocomplete: currentMessenger === 'whatsapp' ? 'tel' : 'off', maxlength: 64, required: '', 'aria-describedby': currentMessenger === 'whatsapp' ? 'quiz-country-status quiz-error' : 'quiz-contact-hint quiz-error', placeholder: currentMessenger === 'whatsapp' ? '+34 612 345 678' : '@username' });
+  input.value = measuring ? '' : contact[currentMessenger];
   input.addEventListener('input', () => { contact[messenger] = input.value; input.removeAttribute('aria-invalid'); error.textContent = ''; });
-  field.append(node('label', { for: 'quiz-contact' }, messenger === 'whatsapp' ? t.phone : t.telegram));
-  if (messenger === 'whatsapp') {
-    phoneState.hasInput = Boolean(input.value.trim());
-    phoneField = createPhoneField({ input, lang, text: t, state: phoneState, onCountry: persist,
+  field.append(node('label', { for: 'quiz-contact' }, currentMessenger === 'whatsapp' ? t.phone : t.telegram));
+  if (currentMessenger === 'whatsapp') {
+    if (!measuring) phoneState.hasInput = Boolean(input.value.trim());
+    const component = createPhoneField({ input, lang, text: t, state: phoneState, staticOnly: measuring, onCountry: persist,
       onInput: value => { contact.whatsapp = value; },
       onError: message => { error.textContent = message; input.setAttribute('aria-invalid', String(Boolean(message))); }
     });
-    field.append(phoneField.row, phoneField.hint);
+    if (!measuring) phoneField = component;
+    field.append(component.row, component.hint);
   } else field.append(input, node('p', { id: 'quiz-contact-hint', class: 'quiz-hint' }, t.telegramHint));
-  consent = true;
+  if (!measuring) consent = true;
   const consentLabel = node('label', { class: 'quiz-consent' });
   const checkbox = node('input', { id: 'quiz-consent', type: 'checkbox', name: 'consent', checked: '', required: '', 'aria-describedby': 'quiz-error' });
   checkbox.checked = true;
@@ -281,7 +285,8 @@ function renderContact(content, shell, t) {
   const actions = node('div', { class: 'quiz-actions' });
   const submit = node('button', { class: 'quiz-primary', type: 'submit' }, t.send);
   actions.append(submit, button(t.back, 'quiz-back-link', () => { step--; persist(); render(); }));
-  form.append(fieldset, nameField, field, consentLabel, trap, error, actions);
+  for (const control of actions.querySelectorAll('button')) control.setAttribute('form', form.id);
+  form.append(fieldset, nameField, field, consentLabel, trap, error);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (submitting) return;
@@ -326,12 +331,65 @@ function renderContact(content, shell, t) {
     }
   });
   content.append(form);
-  shell.append(content);
+  shell.append(content, actions);
 }
+
+let measuredWidth = 0;
+let sizingFrame;
+function sizeQuiz() {
+  if (!dialog.open) return;
+  const width = dialog.getBoundingClientRect().width;
+  const probe = node('div', { class: 'quiz-dialog quiz-measure', 'aria-hidden': 'true' });
+  probe.inert = true;
+  probe.lang = lang;
+  probe.style.width = `${width}px`;
+  const variants = [
+    ...steps.map((question, currentStep) => ({ id: question.id, stage: 'question', currentStep })),
+    { id: 'contact-whatsapp', stage: 'contact', currentStep: steps.length, currentMessenger: 'whatsapp' },
+    { id: 'contact-telegram', stage: 'contact', currentStep: steps.length, currentMessenger: 'telegram' },
+    { id: 'success', stage: 'success', complete: true }
+  ];
+  // Измерительные копии не получают контакты и не запускают GeoIP, таймеры или отправку.
+  const shells = variants.map(variant => {
+    const surface = probe.cloneNode(false);
+    surface.dataset.stage = variant.stage;
+    surface.append(buildShell({ ...variant, complete: variant.complete === true, measuring: true }));
+    for (const element of surface.querySelectorAll('[id], [name], [for], [form]')) {
+      for (const attr of ['id', 'name', 'for', 'form']) element.removeAttribute(attr);
+    }
+    for (const input of surface.querySelectorAll('input')) if (!['checkbox', 'radio'].includes(input.type)) input.value = '';
+    return surface;
+  });
+  document.body.append(...shells);
+  try {
+    const heights = shells.map(surface => Math.ceil(surface.getBoundingClientRect().height));
+    const largest = Math.max(...heights);
+    dialog.style.setProperty('--quiz-fixed-height', `${largest}px`);
+    dialog.dataset.heightReference = variants[heights.indexOf(largest)].id;
+    dialog.dataset.sized = '';
+    measuredWidth = width;
+  } finally { for (const surface of shells) surface.remove(); }
+}
+function updateAvailableHeight() {
+  dialog.style.setProperty('--quiz-available-height', `${Math.floor(window.visualViewport?.height || window.innerHeight)}px`);
+}
+function queueSizing() {
+  cancelAnimationFrame(sizingFrame);
+  sizingFrame = requestAnimationFrame(sizeQuiz);
+}
+new ResizeObserver(() => {
+  if (dialog.open && Math.abs(dialog.getBoundingClientRect().width - measuredWidth) > 0.5) queueSizing();
+}).observe(dialog);
+window.addEventListener('resize', () => { updateAvailableHeight(); queueSizing(); });
+window.visualViewport?.addEventListener('resize', updateAvailableHeight);
+document.fonts.ready.then(queueSizing);
+document.fonts.addEventListener('loadingdone', queueSizing);
 function openQuiz() {
   focusBefore = document.activeElement;
   document.body.classList.add('quiz-open');
   dialog.showModal();
   render();
+  updateAvailableHeight();
+  sizeQuiz();
 }
 document.querySelector('[data-open-quiz]').addEventListener('click', openQuiz);

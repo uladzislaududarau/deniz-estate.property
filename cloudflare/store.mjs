@@ -2,8 +2,8 @@ import { keys, fingerprint, encrypt, decrypt } from './crypto.mjs';
 import { sendNotification } from './notifications.mjs';
 
 export async function createCloudStore(env, fetcher = fetch) {
-  if (!env.LEADS_DB) throw new Error('database_not_configured');
-  const db = env.LEADS_DB;
+  if (!env.DB) throw new Error('database_not_configured');
+  const db = env.DB;
   const key = await keys(env.LEAD_ENCRYPTION_KEY);
   return {
     async rateLimit(ip) {

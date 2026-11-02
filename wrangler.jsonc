@@ -4,6 +4,15 @@
   "main": "cloudflare/worker.mjs",
   "compatibility_date": "2026-11-02",
   "workers_dev": true,
+  "keep_vars": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "deniz-estate-leads",
+      "database_id": "7a35b81d-dc12-42a0-9582-fd804580da27",
+      "migrations_dir": "migrations"
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -14,6 +23,7 @@
   "vars": { "LEADS_ENABLED": "false" },
   "triggers": { "crons": ["*/5 * * * *"] },
   "observability": { "enabled": false }
-  // После создания D1 добавьте d1_databases по инструкции docs/CLOUDFLARE_SETUP.md.
+  // Маршруты Custom Domain не меняются без сверки с Production перед публикацией.
+  // keep_vars сохраняет переменные панели, кроме явно заданного выше LEADS_ENABLED=false.
   // Ключи Telegram, Resend и шифрования добавляются только как Cloudflare Secrets.
 }
