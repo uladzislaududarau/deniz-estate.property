@@ -41,7 +41,7 @@ export function createPhoneField({ input, lang, text, state, onCountry, onInput,
   const names = new Intl.DisplayNames([lang], { type: 'region' });
   const hint = document.createElement('p');
   hint.className = 'quiz-hint'; hint.id = 'quiz-country-status'; hint.setAttribute('aria-live', 'polite');
-  hint.textContent = text.phoneHint || '';
+  hint.textContent = '';
   input.setAttribute('aria-describedby', 'quiz-country-status quiz-error');
   // Геометрия поля для скрытого измерения квиза без загрузки библиотеки и GeoIP-запроса.
   if (staticOnly) return { row, hint };
@@ -49,10 +49,7 @@ export function createPhoneField({ input, lang, text, state, onCountry, onInput,
     select.value = state.country;
     for (const option of select.options) option.label = option.value === state.country ? `${state.country} +${tools?.getCountryCallingCode(state.country) || fallback[state.country] || ''}` : option.textContent;
     select.title = `${names.of(state.country)} (+${tools?.getCountryCallingCode(state.country) || fallback[state.country] || ''})`;
-    if (text.phoneHint) hint.textContent = text.phoneHint;
-    else if (state.source === 'ip') hint.textContent = text.countryDetected;
-    else if (state.source === 'manual' || state.source === 'number') hint.textContent = '';
-    else hint.textContent = text.countryFallback;
+    hint.textContent = '';
   };
   const ready = loadLibrary().then(value => {
     tools = value;

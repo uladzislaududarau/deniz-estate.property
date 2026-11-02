@@ -194,3 +194,7 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 .quiz-dialog .quiz-field :is(input, select):focus { outline: none; box-shadow: none; }
 .quiz-dialog .quiz-field > input:focus { border-color: #66a9e3; }
 .quiz-dialog .quiz-phone-row:focus-within { border-color: #66a9e3; outline: none; box-shadow: none; }
+
+@media (max-width: 560px) {
+  .quiz-dialog[data-stage=contact] .quiz-actions { position: relative; top: 10px; }
+}

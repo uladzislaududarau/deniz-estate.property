@@ -261,7 +261,7 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
   nameInput.addEventListener('input', () => { contactName = nameInput.value; nameInput.removeAttribute('aria-invalid'); error.textContent = ''; });
   nameField.append(nameInput);
   const field = node('div', { class: 'quiz-field' });
-  const input = node('input', { id: 'quiz-contact', name: 'contact', type: currentMessenger === 'whatsapp' ? 'tel' : 'text', autocomplete: currentMessenger === 'whatsapp' ? 'tel' : 'off', maxlength: 64, required: '', 'aria-describedby': currentMessenger === 'whatsapp' ? 'quiz-country-status quiz-error' : 'quiz-contact-hint quiz-error', placeholder: currentMessenger === 'whatsapp' ? '+34 612 345 678' : '@username' });
+  const input = node('input', { id: 'quiz-contact', name: 'contact', type: currentMessenger === 'whatsapp' ? 'tel' : 'text', autocomplete: currentMessenger === 'whatsapp' ? 'tel' : 'off', maxlength: 64, required: '', 'aria-describedby': currentMessenger === 'whatsapp' ? 'quiz-country-status quiz-error' : 'quiz-error', placeholder: currentMessenger === 'whatsapp' ? '+34 612 345 678' : '@username' });
   input.value = measuring ? '' : contact[currentMessenger];
   input.addEventListener('input', () => { contact[messenger] = input.value; input.removeAttribute('aria-invalid'); error.textContent = ''; });
   field.append(node('label', { for: 'quiz-contact' }, currentMessenger === 'whatsapp' ? t.phone : t.telegram));
@@ -273,7 +273,7 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     });
     if (!measuring) phoneField = component;
     field.append(component.row, component.hint);
-  } else field.append(input, node('p', { id: 'quiz-contact-hint', class: 'quiz-hint' }, t.telegramHint));
+  } else field.append(input);
   if (!measuring) consent = true;
   const consentLabel = node('label', { class: 'quiz-consent' });
   const checkbox = node('input', { id: 'quiz-consent', type: 'checkbox', name: 'consent', checked: '', required: '', 'aria-describedby': 'quiz-error' });
