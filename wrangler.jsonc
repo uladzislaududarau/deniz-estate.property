@@ -20,10 +20,10 @@
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page"
   },
-  "vars": { "LEADS_ENABLED": "false" },
+  "vars": { "LEADS_ENABLED": "true" },
   "triggers": { "crons": ["*/5 * * * *"] },
   "observability": { "enabled": false }
   // Маршруты Custom Domain не меняются без сверки с Production перед публикацией.
-  // keep_vars сохраняет переменные панели, кроме явно заданного выше LEADS_ENABLED=false.
+  // keep_vars сохраняет переменные панели, кроме явно заданного выше LEADS_ENABLED=true.
   // Ключи Telegram, Resend и шифрования добавляются только как Cloudflare Secrets.
 }
