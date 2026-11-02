@@ -8,7 +8,7 @@ const text = english ? {
   necessary: 'Necessary — always enabled', analytics: 'Allow visit analytics', marketing: 'Allow advertising measurement and personalisation', change: 'Cookie settings'
 } : {
   title: 'Cookie', description: 'Используем cookie для работы сайта и измерения рекламы.',
-  accept: 'Принять все', reject: 'Отклонить', settings: 'Подробнее и настройки', save: 'Сохранить выбор', privacy: 'Политика обработки данных',
+  accept: 'Принять все', reject: 'Отказаться', settings: 'Подробнее и настройки', save: 'Сохранить выбор', privacy: 'Политика обработки данных',
   necessary: 'Необходимые — включены всегда', analytics: 'Разрешить статистику посещений', marketing: 'Разрешить измерение и персонализацию рекламы', change: 'Настройки cookie'
 };
 window.dataLayer = window.dataLayer || [];
@@ -66,6 +66,7 @@ function save(analytics, marketing) {
 const saveButton = button(text.save, () => save(analytics.checked, marketing.checked)); saveButton.hidden = true;
 const accept = button(text.accept, () => save(true, true));
 const reject = button(text.reject, () => save(false, false));
+reject.classList.add('cookie-button-reject');
 const settings = button(text.settings, () => {
   details.hidden = !details.hidden; saveButton.hidden = details.hidden;
   settings.setAttribute('aria-expanded', String(!details.hidden));
