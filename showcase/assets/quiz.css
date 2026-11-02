@@ -184,7 +184,7 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 }
 
 /* Поля контактов компактнее, прокрутка остаётся в содержимом квиза. */
-.quiz-dialog .quiz-field { margin-inline: 8px; }
+.quiz-dialog .quiz-field { margin-inline: 0; }
 .quiz-dialog .quiz-field > input { height: 48px; min-height: 48px; padding-block: 12px; }
 .quiz-dialog .quiz-phone-row { height: 48px; min-height: 48px; }
 .quiz-dialog .quiz-phone-number input { padding-block: 12px; }

@@ -48,7 +48,7 @@ export const copy = {
     step: 'Шаг', of: 'из', single: 'Выберите один вариант — перейдём к следующему вопросу.', multiple: 'Можно выбрать один или несколько вариантов.',
     contactTitle: 'Подбор объектов недвижимости в Испании по вашим критериям готов',
     contactIntro: 'Укажите удобный способ получения.',
-    name: 'Ваше имя', invalidName: 'Укажите ваше имя буквами, до 80 символов.',
+    name: 'Ваше имя', namePlaceholder: 'Введите ваше имя', invalidName: 'Укажите ваше имя буквами, до 80 символов.',
     messenger: 'Удобный способ связи', phone: 'Ваш номер WhatsApp', telegram: 'Телефон Telegram или username',
 
     telegramHint: 'Например @username или номер телефона с кодом страны.',
@@ -78,7 +78,7 @@ export const copy = {
     step: 'Step', of: 'of', single: 'Choose one option to continue.', multiple: 'You can select one or more options.',
     contactTitle: 'Selection of properties in Spain according to your criteria is ready',
     contactIntro: 'Choose your preferred delivery method.',
-    name: 'Your name', invalidName: 'Enter your name using letters, up to 80 characters.',
+    name: 'Your name', namePlaceholder: 'Enter your name', invalidName: 'Enter your name using letters, up to 80 characters.',
     messenger: 'Preferred contact method', phone: 'Your WhatsApp number', telegram: 'Telegram phone number or username',
      telegramHint: 'For example @username or a phone number with country code.',
     phoneHint: 'Choose your country and enter your phone number without the country code.',

@@ -256,10 +256,10 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     fieldset.append(label);
   }
   const nameField = node('div', { class: 'quiz-field quiz-name-field' });
-  const nameInput = node('input', { id: 'quiz-name', name: 'name', type: 'text', autocomplete: 'given-name', autocapitalize: 'words', maxlength: 80, required: '', 'aria-describedby': 'quiz-error' });
+  const nameInput = node('input', { id: 'quiz-name', name: 'name', type: 'text', 'aria-label': t.name, placeholder: t.namePlaceholder, autocomplete: 'given-name', autocapitalize: 'words', maxlength: 80, required: '', 'aria-describedby': 'quiz-error' });
   nameInput.value = measuring ? '' : contactName;
   nameInput.addEventListener('input', () => { contactName = nameInput.value; nameInput.removeAttribute('aria-invalid'); error.textContent = ''; });
-  nameField.append(node('label', { for: 'quiz-name' }, t.name), nameInput);
+  nameField.append(nameInput);
   const field = node('div', { class: 'quiz-field' });
   const input = node('input', { id: 'quiz-contact', name: 'contact', type: currentMessenger === 'whatsapp' ? 'tel' : 'text', autocomplete: currentMessenger === 'whatsapp' ? 'tel' : 'off', maxlength: 64, required: '', 'aria-describedby': currentMessenger === 'whatsapp' ? 'quiz-country-status quiz-error' : 'quiz-contact-hint quiz-error', placeholder: currentMessenger === 'whatsapp' ? '+34 612 345 678' : '@username' });
   input.value = measuring ? '' : contact[currentMessenger];

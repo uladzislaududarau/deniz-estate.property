@@ -18,4 +18,8 @@
 .cookie-actions > :last-child:not([hidden]) { grid-column: 1 / -1; }
 .cookie-settings-link { padding: 0; border: 0; background: transparent; color: inherit; text-decoration: underline; text-underline-offset: .25em; font: inherit; cursor: pointer; text-align: left; }
 .cookie-panel :is(button, a, input):focus-visible, .cookie-settings-link:focus-visible { outline: 3px solid #075baf; outline-offset: 3px; }
-@media (max-width: 560px) { .cookie-panel { right: 16px; bottom: 36px; } }
+@media (max-width: 560px) {
+  .cookie-panel { right: auto; left: 50%; bottom: 36px; transform: translateX(-50%); }
+  .cookie-actions { grid-template-columns: repeat(2, max-content); justify-content: center; }
+  .cookie-button { min-height: 38px; padding: 7px 12px; font-size: 12px; border-radius: 10px; }
+}
