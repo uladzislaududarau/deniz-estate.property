@@ -58,12 +58,16 @@ function button(text, className, action) {
 }
 function clearAdvance() { clearTimeout(timer); timer = undefined; }
 function clearAutoClose() { if (autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = undefined; } }
+let pageScrollY = 0;
 function close() { if (!submitting) dialog.close(); }
 dialog.addEventListener('close', () => {
   clearAdvance();
   clearAutoClose();
   document.body.classList.remove('quiz-open');
-  focusBefore?.focus();
+  document.documentElement.classList.remove('quiz-open');
+  document.body.style.removeProperty('--quiz-page-scroll-offset');
+  window.scrollTo({ top: pageScrollY, behavior: 'instant' });
+  focusBefore?.focus({ preventScroll: true });
   if (success) {
     step = 0;
     answers = {};
@@ -385,7 +389,11 @@ window.visualViewport?.addEventListener('resize', updateAvailableHeight);
 document.fonts.ready.then(queueSizing);
 document.fonts.addEventListener('loadingdone', queueSizing);
 function openQuiz() {
+  if (dialog.open) return;
   focusBefore = document.activeElement;
+  pageScrollY = window.scrollY;
+  document.body.style.setProperty('--quiz-page-scroll-offset', `${-pageScrollY}px`);
+  document.documentElement.classList.add('quiz-open');
   document.body.classList.add('quiz-open');
   dialog.showModal();
   render();

@@ -7,7 +7,9 @@
   --quiz-error: oklch(44% .15 28);
   --quiz-radius: 6px;
 }
-body.quiz-open { overflow-y: hidden; }
+html { scrollbar-gutter: stable; }
+html.quiz-open { overflow: hidden; overscroll-behavior: none; }
+body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left: 0; right: 0; width: 100%; overflow: hidden; overscroll-behavior: none; }
 .quiz-dialog { margin: auto; padding: 0; width: min(620px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; border: 0; border-radius: var(--quiz-radius); color: var(--color-ink); background: var(--color-paper); box-shadow: var(--quiz-shadow); }
 .quiz-dialog::backdrop { background: var(--quiz-backdrop); }
 .quiz-shell { padding: 20px 32px 28px; }
@@ -24,7 +26,7 @@ body.quiz-open { overflow-y: hidden; }
 .quiz-progress::-moz-progress-bar { background: var(--color-accent); }
 .quiz-counter { flex-shrink: 0; font-size: 13px; line-height: 1.4; color: var(--color-ink-2); }
 .quiz-content { min-height: 320px; }
-.quiz-title { font-size: clamp(26px, 4vw, 32px); font-weight: 600; line-height: 1.16; letter-spacing: -.035em; overflow-wrap: break-word; min-width: 0; max-width: 510px; margin-bottom: 12px; }
+.quiz-title { font-size: clamp(24px, 4vw, 30px); font-weight: 600; line-height: 1.16; letter-spacing: -.035em; overflow-wrap: break-word; min-width: 0; max-width: 510px; margin-bottom: 12px; }
 .quiz-title:focus { outline: none; }
 .quiz-intro { font-size: 16px; line-height: 1.5; color: var(--color-ink-2); margin-bottom: 24px; max-width: 530px; }
 .quiz-options { border: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; min-width: 0; }
@@ -68,7 +70,7 @@ body.quiz-open { overflow-y: hidden; }
 .quiz-error { color: var(--quiz-error); font-size: 14px; line-height: 1.5; margin-top: 12px; }
 .quiz-error:empty { display: none; }
 .quiz-success { padding: 12px 0 12px; }
-.quiz-success .quiz-title { font-size: clamp(23px, 3.8vw, 28px); font-weight: 600; line-height: 1.22; margin-bottom: 12px; text-align: left; }
+.quiz-success .quiz-title { font-size: clamp(21px, 3.8vw, 26px); font-weight: 600; line-height: 1.22; margin-bottom: 12px; text-align: left; }
 .quiz-success .quiz-intro { text-align: left; }
 .quiz-success-links { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 24px; width: 100%; }
 .quiz-success-main-btn { width: fit-content; max-width: 100%; min-height: 52px; padding: 12px 24px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; text-align: left; text-decoration: none; }
@@ -99,7 +101,7 @@ body.quiz-open { overflow-y: hidden; }
   .quiz-brand { font-size: 15px; }
   .quiz-progress { margin-bottom: 20px; }
   .quiz-content { min-height: 280px; }
-  .quiz-title { font-size: 27px; margin-bottom: 12px; }
+  .quiz-title { font-size: 25px; margin-bottom: 12px; }
   .quiz-intro { font-size: 15px; line-height: 1.5; margin-bottom: 20px; }
   .quiz-options { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .quiz-choice { min-height: 54px; padding: 12px 16px; }
@@ -118,7 +120,7 @@ body.quiz-open { overflow-y: hidden; }
 }
 @media (max-width: 374px) {
   .quiz-shell { padding-inline: 16px; }
-  .quiz-title { font-size: 25px; }
+  .quiz-title { font-size: 23px; }
   .quiz-dialog[data-stage=contact] .quiz-actions { gap: 12px; }
   .quiz-phone-row select { width: 96px; flex-basis: 96px; }
   .quiz-primary { padding-inline: 12px; }
@@ -176,3 +178,10 @@ body.quiz-open { overflow-y: hidden; }
   .quiz-dialog[data-sized] .quiz-actions,
   .quiz-dialog[data-sized] .quiz-success-links { margin-top: 20px; }
 }
+
+/* Поля контактов компактнее, прокрутка остаётся в содержимом квиза. */
+.quiz-dialog .quiz-field { margin-inline: 8px; }
+.quiz-dialog .quiz-field > input { height: 48px; min-height: 48px; padding-block: 12px; }
+.quiz-dialog .quiz-phone-row { height: 48px; min-height: 48px; }
+.quiz-dialog .quiz-phone-number input { padding-block: 12px; }
+.quiz-dialog[data-sized] .quiz-content { touch-action: pan-y; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }

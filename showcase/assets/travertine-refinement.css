@@ -326,7 +326,7 @@ html.has-js .hero-slide.active {
 
 .service-row-warm {
   font-family: var(--font-services);
-  font-size: 15px;
+  font-size: 13px;
   color: var(--travertine-white);
   display: flex;
   align-items: center;
@@ -466,8 +466,10 @@ footer {
 
   .arch-portal::after {
     background: linear-gradient(to bottom,
-      var(--travertine-top-scrim) 0%,
-      transparent 28%,
+      #111c26d9 0%,
+      #111c2699 18%,
+      #111c2633 34%,
+      transparent 48%,
       var(--travertine-scrim) 96%);
   }
 
@@ -505,7 +507,7 @@ footer {
     z-index: 4;
     color: var(--travertine-white);
     text-shadow: var(--travertine-title-shadow);
-    font-size: clamp(24px, 5.6vw, 36px);
+    font-size: clamp(26.6px, 6.22vw, 40px);
     line-height: 1.14;
     pointer-events: none;
   }
@@ -529,7 +531,7 @@ footer {
 
   .service-row-warm {
     color: var(--color-ink);
-    font-size: 17px;
+    font-size: 15px;
     line-height: 1.45;
   }
 
@@ -612,7 +614,7 @@ footer {
 
   .travertine-page .hero-title {
     bottom: calc(100% + 20px);
-    font-size: clamp(21px, 6.4vw, 28px);
+    font-size: clamp(23.3px, 7.1vw, 31px);
   }
 
 
@@ -626,7 +628,7 @@ footer {
   }
 
   .service-row-warm {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.4;
   }
 
@@ -657,3 +659,9 @@ footer {
 .skip-link:focus { transform: translateY(0); }
 .no-script-note { position: relative; z-index: 5; padding: 16px var(--travertine-gutter); background: var(--color-paper); color: var(--color-ink); }
 @media (max-width: 560px) { .footer-links { flex-direction: column; gap: 12px; } }
+
+/* Компактные подписи мессенджеров: иконка и текст образуют одну группу. */
+@media (max-width: 560px) {
+  .travertine-page .quiz-messengers .quiz-choice { gap: 6px; padding-inline: 8px; justify-content: center; }
+  .travertine-page .quiz-messenger-text { font-size: 16px; }
+}
