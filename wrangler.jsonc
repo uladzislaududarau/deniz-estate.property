@@ -5,6 +5,9 @@
   "compatibility_date": "2026-11-02",
   "workers_dev": true,
   "keep_vars": true,
+  "routes": [
+    { "pattern": "www.deniz-estate.property/*", "zone_id": "70714c8b3de452af5f69126b9cc6acfd" }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
@@ -23,7 +26,7 @@
   "vars": { "LEADS_ENABLED": "true" },
   "triggers": { "crons": ["*/5 * * * *"] },
   "observability": { "enabled": false }
-  // Маршруты Custom Domain не меняются без сверки с Production перед публикацией.
+  // Основной Custom Domain сохранён в панели; маршрут www закреплён выше.
   // keep_vars сохраняет переменные панели, кроме явно заданного выше LEADS_ENABLED=true.
   // Ключи Telegram, Resend и шифрования добавляются только как Cloudflare Secrets.
 }
