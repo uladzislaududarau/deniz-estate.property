@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { siteOrigin, renderLanding, robots, sitemap } from '../server/seo.mjs';
+import { siteOrigin, renderLanding, renderThankYou, robots, sitemap } from '../server/seo.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = path.join(root, 'showcase');
@@ -36,12 +36,12 @@ async function dependencies(relative) {
   }
 }
 for (const [input, target] of [
-  ['index.html', 'index.html'],
+  ['index.html', 'index.html'], ['index.html', 'thank-you/index.html'],
   ['legal/ru-privacy.html', 'privacy/index.html'], ['legal/ru-legal.html', 'legal/index.html'],
   ['legal/en-privacy.html', 'en/privacy/index.html'], ['legal/en-legal.html', 'en/legal/index.html']
 ]) {
   const html = await readFile(path.join(source, input), 'utf8');
-  await emit(target, input === 'index.html' ? renderLanding(html, origin) : html);
+  await emit(target, target === 'thank-you/index.html' ? renderThankYou(html) : input === 'index.html' ? renderLanding(html, origin) : html);
   await dependencies(input);
 }
 // Лицензии поставляются вместе с используемыми ресурсами.

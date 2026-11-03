@@ -200,3 +200,9 @@ body.quiz-open { position: fixed; top: var(--quiz-page-scroll-offset, 0px); left
 @media (max-width: 560px) {
   .quiz-dialog[data-stage=contact] .quiz-actions { position: relative; top: 10px; }
 }
+
+/* Ожидание подтверждения сервера без смены текста и размеров кнопки. */
+.quiz-spinner { display: block; width: 22px; height: 22px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: quiz-wait 800ms linear infinite; }
+.quiz-dialog button[aria-busy=true] { color: var(--color-accent-ink); background: var(--color-accent); cursor: wait; }
+@keyframes quiz-wait { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .quiz-spinner { animation: none; } }

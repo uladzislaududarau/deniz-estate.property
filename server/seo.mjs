@@ -26,3 +26,8 @@ export function robots(origin = '') {
 export function sitemap(origin) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}/</loc></url></urlset>\n`;
 }
+
+export function renderThankYou(html) {
+  return html.replace(/<title>[^<]*<\/title>/, "<title>Благодарим за ваш запрос | Deniz Estate</title>")
+    .replace('content="noindex, follow"', 'content="noindex, nofollow"');
+}

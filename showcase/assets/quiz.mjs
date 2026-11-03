@@ -1,3 +1,4 @@
+import { THANK_YOU_PATH, isThankYouPath, receiptFromSession, rememberSavedLead } from './lead-receipt.mjs';
 import { steps, copy, links, policyVersion } from './quiz.config.mjs';
 import { telegramUsername, normalizeName } from './contact.mjs';
 import { createPhoneField } from './phone-field.mjs';
@@ -68,6 +69,7 @@ dialog.addEventListener('close', () => {
   document.body.style.removeProperty('--quiz-page-scroll-offset');
   window.scrollTo({ top: pageScrollY, behavior: 'instant' });
   focusBefore?.focus({ preventScroll: true });
+  if (success && isThankYouPath(location.pathname)) { location.replace('/'); return; }
   if (success) {
     step = 0;
     answers = {};
@@ -148,7 +150,7 @@ function buildShell({ currentStep = step, currentMessenger = messenger, complete
     shell.append(content, actions);
 
     // Автоматическое закрытие через 20 секунд с последующим сбросом
-    if (!measuring) autoCloseTimer = setTimeout(() => {
+    if (!measuring && !isThankYouPath(location.pathname)) autoCloseTimer = setTimeout(() => {
       close();
     }, 20000);
   } else {
@@ -308,7 +310,9 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     if (steps.some(question => !hasAnswer(question))) { step = steps.findIndex(question => !hasAnswer(question)); render(); return; }
     submitting = true;
     for (const control of form.elements) control.disabled = true;
-    submit.textContent = t.sending;
+    submit.setAttribute('aria-label', t.sending);
+    submit.setAttribute('aria-busy', 'true');
+    submit.replaceChildren(node('span', { class: 'quiz-spinner', 'aria-hidden': 'true' }));
     error.textContent = '';
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
@@ -327,11 +331,15 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
       success = true;
       contact = { whatsapp: '', telegram: '' }; contactName = ''; consent = true;
       try { sessionStorage.removeItem(key); } catch {}
+      if (rememberSavedLead(result, lang)) { location.assign(THANK_YOU_PATH); return; }
+      // При отключённом sessionStorage благодарность остаётся доступной в текущем окне.
       render();
     } catch { error.textContent = t.networkError; }
     finally {
       clearTimeout(timeout); submitting = false;
       for (const control of form.elements) control.disabled = false;
+      submit.removeAttribute('aria-busy');
+      submit.removeAttribute('aria-label');
       submit.textContent = t.send;
     }
   });
@@ -415,3 +423,10 @@ function openQuiz() {
   sizeQuiz();
 }
 document.querySelector('[data-open-quiz]').addEventListener('click', openQuiz);
+
+// Благодарность доступна только после подтверждённого сервером сохранения заявки.
+if (isThankYouPath(location.pathname)) {
+  const receipt = receiptFromSession();
+  if (!receipt) location.replace('/');
+  else { lang = receipt.language; success = true; openQuiz(); }
+}

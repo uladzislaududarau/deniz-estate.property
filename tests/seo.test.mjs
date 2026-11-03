@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createApp } from '../server/index.mjs';
-import { siteOrigin, renderLanding, robots, sitemap } from '../server/seo.mjs';
+import { siteOrigin, renderLanding, renderThankYou, robots, sitemap } from '../server/seo.mjs';
 
 test('Метаданные не рекламируют выдуманный домен и отсутствующий перевод', async () => {
   const html = await readFile(new URL('../showcase/index.html', import.meta.url), 'utf8');
@@ -30,6 +30,9 @@ test('Старые страницы перенаправляются, отсут
     assert.equal(response.status, 301);
     assert.equal(response.headers.get('location'), '/');
   }
+  const thankYou = await fetch(base + '/thank-you');
+  assert.equal(thankYou.status, 200);
+  assert.match(await thankYou.text(), /noindex, nofollow/);
   assert.equal((await fetch(base + '/assets/missing.webp')).status, 404);
   assert.equal((await fetch(base + '/sitemap.xml')).status, 404);
   assert.equal(await (await fetch(base + '/robots.txt')).text(), robots());
@@ -54,4 +57,11 @@ test('Все подключённые локальные ресурсы стра
     }
   }
   for (const file of ['index.html', 'legal/ru-privacy.html', 'legal/ru-legal.html', 'legal/en-privacy.html', 'legal/en-legal.html']) await walk(file);
+});
+
+test('Благодарность исключена из индексации и sitemap', async () => {
+  const html = await readFile(new URL('../showcase/index.html', import.meta.url), 'utf8');
+  assert.match(renderThankYou(html), /Благодарим за ваш запрос \| Deniz Estate/);
+  assert.match(renderThankYou(html), /noindex, nofollow/);
+  assert.doesNotMatch(sitemap('https://example.com'), /thank-you/);
 });

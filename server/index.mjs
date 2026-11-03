@@ -6,7 +6,7 @@ import { randomUUID, createHmac, randomBytes } from 'node:crypto';
 import { validateLead } from './schema.mjs';
 import { createStore } from './store.mjs';
 import { resolveCountry } from './country.mjs';
-import { siteOrigin, renderLanding, robots, sitemap } from './seo.mjs';
+import { siteOrigin, renderLanding, renderThankYou, robots, sitemap } from './seo.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 export async function createApp({ storage = path.join(root, 'storage', 'leads'), saveLead, allowedOrigin, geoProvider = '', countryResolver = resolveCountry, siteUrl = '' } = {}) {
@@ -69,7 +69,7 @@ export async function createApp({ storage = path.join(root, 'storage', 'leads'),
         return response.end();
       }
       let asset;
-      if (pathname === '/') asset = 'index.html';
+      if (['/', '/thank-you', '/thank-you/'].includes(pathname)) asset = 'index.html';
       else if (pathname === '/favicon.ico') asset = 'favicon.ico';
       else if (pathname === '/favicon.svg') asset = 'favicon.svg';
       else if (['/privacy', '/legal', '/en/privacy', '/en/legal'].includes(pathname)) asset = `legal/${pathname.startsWith('/en/') ? 'en' : 'ru'}-${pathname.endsWith('privacy') ? 'privacy' : 'legal'}.html`;
@@ -81,7 +81,7 @@ export async function createApp({ storage = path.join(root, 'storage', 'leads'),
       let data;
       try { data = await readFile(path.join(root, 'showcase', asset)); }
       catch (error) { if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return json(404, { code: 'not_found' }); throw error; }
-      if (asset === 'index.html') data = Buffer.from(renderLanding(data.toString(), originUrl));
+      if (asset === 'index.html') data = Buffer.from(pathname.startsWith('/thank-you') ? renderThankYou(data.toString()) : renderLanding(data.toString(), originUrl));
       const type = asset.endsWith('.woff2') ? 'font/woff2'
         : asset.endsWith('.webp') ? 'image/webp'
         : asset.endsWith('.svg') ? 'image/svg+xml'

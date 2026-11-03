@@ -1,3 +1,4 @@
+import { isThankYouPath, receiptFromSession } from './lead-receipt.mjs';
 import { CONSENT_VERSION, readPreferences, createAdsConsent } from './ads-consent-state.mjs';
 
 const storageKey = 'deniz-cookie-consent';
@@ -16,10 +17,15 @@ window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
 // До выбора посетителя библиотека Google не загружается и запросы к ней не отправляются.
 window.gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' });
 window.gtag('set', 'ads_data_redaction', true);
-const apply = createAdsConsent(window.gtag, src => {
+const updateConsent = createAdsConsent(window.gtag, src => {
   const script = document.createElement('script'); script.async = true; script.src = src;
   document.head.append(script);
 });
+// Прямое открытие страницы без подтверждения не запускает рекламный тег.
+const apply = preferences => {
+  if (isThankYouPath(location.pathname) && !receiptFromSession()) return;
+  updateConsent(preferences);
+};
 let preferences;
 try { preferences = readPreferences(localStorage.getItem(storageKey)); } catch {}
 if (preferences) apply(preferences);
