@@ -32,6 +32,7 @@ test('Один запрос Resend отправляет одну заявку в
   assert.equal(body.from, env.LEAD_EMAIL_FROM);
   assert.equal(calls[0].options.headers['Idempotency-Key'], 'deniz-lead/test-lead');
   assert.match(body.text, /Тест/);
+  assert.match(body.html, /Имя: <b>Тест<\/b>/);
 });
 
 test('Ошибки адресов и отправителя не вызывают внешний API', async () => {
@@ -65,10 +66,32 @@ test('Уведомление содержит понятные блоки, ме�
   assert.ok(text.startsWith('Заявка с сайта Deniz Estate Property\n\nДата: 02.11.2026\nВремя: 14:00'));
   assert.match(text, /Имя: Тест\nЯзык: Русский/);
   assert.match(text, /Способ связи: Telegram\nКонтакт: @deniz_test/);
-  assert.match(text, /Регион Испании:\nМайорка/);
-  assert.match(text, /Согласие на обработку персональных данных: Получено\nДата: 02.11.2026\nВремя: 14:00/);
+  assert.match(text, /Время: 14:00\nЧасовой пояс: Asia\/Nicosia\n\nИмя:/);
+  assert.match(text, /Регион Испании: Майорка/);
+  assert.match(text, /Критерии подбора:/);
+  assert.match(text, /Срок покупки: В ближайшее время/);
+  assert.doesNotMatch(text, /Согласие|Не подтверждено/);
   assert.doesNotMatch(text, /test-lead|ID:|2026-11-02T|Telegram —/);
   assert.match(leadMessage({ ...lead, messenger: 'whatsapp', contact: '+34612345678' }, 'UTC'), /Способ связи: WhatsApp\nКонтакт: \+34612345678/);
   assert.match(leadMessage(lead, 'UTC'), /Время: 12:00/);
-  assert.match(leadMessage({ ...lead, consent: { ...lead.consent, accepted: false } }), /Не подтверждено/);
+});
+
+test('Бюджеты идут отдельными строками, ответы выделены жирным и HTML клиента экранируется', async () => {
+  const sample = { ...lead, name: '<i>Тест & пример</i>', answers: { ...lead.answers, budgets: ['200k-300k', '300k-500k'] } };
+  const text = leadMessage(sample);
+  assert.match(text, /Бюджет:\n200 000–300 000 €\n300 000–500 000 €/);
+  const html = leadMessage(sample, 'Asia/Nicosia', 'telegram');
+  assert.match(html, /Имя: <b>&lt;i&gt;Тест &amp; пример&lt;\/i&gt;<\/b>/);
+  assert.doesNotMatch(html, /<i>/);
+  assert.match(html, /Бюджет:\n<b>200 000–300 000 €<\/b>\n<b>300 000–500 000 €<\/b>/);
+  assert.match(html, /Срок покупки: <b>В ближайшее время<\/b>/);
+  let payload;
+  await sendNotification('telegram', sample, { TELEGRAM_BOT_TOKEN: 'test-only', TELEGRAM_CHAT_ID: 'test-chat' }, async (url, options) => {
+    payload = JSON.parse(options.body); return Response.json({ ok: true });
+  });
+  assert.equal(payload.parse_mode, 'HTML');
+  assert.equal(payload.text, html);
+  const email = leadMessage(sample, 'Asia/Nicosia', 'email');
+  assert.match(email, /Бюджет:<br><b>200 000–300 000 €<\/b><br><b>300 000–500 000 €<\/b>/);
+  assert.doesNotMatch(email, /Согласие|<i>/);
 });
