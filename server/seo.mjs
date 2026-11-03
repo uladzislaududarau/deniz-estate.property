@@ -31,3 +31,9 @@ export function renderThankYou(html) {
   return html.replace(/<title>[^<]*<\/title>/, "<title>Благодарим за ваш запрос | Deniz Estate</title>")
     .replace('content="noindex, follow"', 'content="noindex, nofollow"');
 }
+
+// Production определяется веткой сборки, одинаково для всех посетителей и роботов.
+export function buildSiteOrigin(env = process.env) {
+  if (env.SITE_URL) return siteOrigin(env.SITE_URL);
+  return env.WORKERS_CI === '1' && env.WORKERS_CI_BRANCH === 'main' ? 'https://deniz-estate.property' : '';
+}

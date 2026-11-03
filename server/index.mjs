@@ -1,3 +1,4 @@
+import { securityHeaders } from './security.mjs';
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -16,8 +17,7 @@ export async function createApp({ storage = path.join(root, 'storage', 'leads'),
   const buckets = new Map();
   const rateSecret = randomBytes(32);
   const server = http.createServer(async (request, response) => {
-    response.setHeader('X-Content-Type-Options', 'nosniff');
-    response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    for (const [name, value] of Object.entries(securityHeaders(false))) response.setHeader(name, value);
     const json = (status, payload) => {
       response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
       response.end(JSON.stringify(payload));
@@ -32,7 +32,7 @@ export async function createApp({ storage = path.join(root, 'storage', 'leads'),
         if (request.method !== 'POST') { response.setHeader('Allow', 'POST'); return json(405, { code: 'method_not_allowed' }); }
         const origin = request.headers.origin;
         const permitted = allowedOrigin || `http://${request.headers.host}`;
-        if ((origin && origin !== permitted) || request.headers['sec-fetch-site'] === 'cross-site') return json(403, { code: 'invalid_origin' });
+        if ((origin !== permitted) || request.headers['sec-fetch-site'] === 'cross-site') return json(403, { code: 'invalid_origin' });
         if (!request.headers['content-type']?.startsWith('application/json')) return json(415, { code: 'invalid_content_type' });
         const now = Date.now();
         for (const [key, value] of buckets) if (value.until < now) buckets.delete(key);

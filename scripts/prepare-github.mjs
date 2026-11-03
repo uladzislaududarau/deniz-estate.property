@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const target = path.join(root, '.github-publish');
 const roots = ['package.json', 'package-lock.json', '.gitignore', '.gitattributes', '.dev.vars.example', 'README.md',
-  'wrangler.jsonc', 'showcase', 'server', 'cloudflare', 'migrations', 'scripts', 'tests', 'docs/CLOUDFLARE_SETUP.md'];
+  'wrangler.jsonc', 'showcase', 'server', 'cloudflare', 'migrations', 'scripts', 'tests', 'docs/CLOUDFLARE_SETUP.md', 'docs/SECURITY_ADS_AUDIT.md'];
 const files = [];
 async function collect(relative) {
   const filename = path.join(root, relative);

@@ -12,7 +12,8 @@
     "dev:cloudflare": "npm run build && wrangler dev",
     "check:cloudflare": "npm run build && wrangler deploy --dry-run --outdir .worker-build",
     "deploy": "npm run build && wrangler deploy",
-    "prepare:github": "node scripts/prepare-github.mjs"
+    "prepare:github": "node scripts/prepare-github.mjs",
+    "check": "node scripts/check.mjs"
   },
   "dependencies": {
     "geoip-country": "^5.0.202610310241",

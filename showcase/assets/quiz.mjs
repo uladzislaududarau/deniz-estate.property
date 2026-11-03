@@ -10,7 +10,7 @@ let answers = {};
 let contact = { whatsapp: '', telegram: '' };
 let messenger = 'whatsapp';
 let contactName = '';
-let consent = true;
+let consent = false;
 let submitting = false;
 let success = false;
 let timer;
@@ -76,7 +76,7 @@ dialog.addEventListener('close', () => {
     contact = { whatsapp: '', telegram: '' };
     messenger = 'whatsapp';
     contactName = '';
-    consent = true;
+    consent = false;
     submitting = false;
     success = false;
     requestId = crypto.randomUUID();
@@ -280,11 +280,10 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     if (!measuring) phoneField = component;
     field.append(component.row, component.hint);
   } else field.append(input);
-  if (!measuring) consent = true;
   const consentLabel = node('label', { class: 'quiz-consent' });
-  const checkbox = node('input', { id: 'quiz-consent', type: 'checkbox', name: 'consent', checked: '', required: '', 'aria-describedby': 'quiz-error' });
-  checkbox.checked = true;
-  checkbox.defaultChecked = true;
+  const checkbox = node('input', { id: 'quiz-consent', type: 'checkbox', name: 'consent', required: '', 'aria-describedby': 'quiz-error' });
+  checkbox.checked = !measuring && consent;
+  checkbox.defaultChecked = false;
   checkbox.addEventListener('change', () => { consent = checkbox.checked; error.textContent = ''; });
   const consentText = node('span');
   const policyLink = node('a', { href: lang === 'en' ? '/en/privacy' : '/privacy', target: '_blank', rel: 'noopener noreferrer' }, t.consentLink);
@@ -333,7 +332,7 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
       const result = await response.json();
       if (result.success !== true || !result.leadId) throw new Error('unconfirmed');
       success = true;
-      contact = { whatsapp: '', telegram: '' }; contactName = ''; consent = true;
+      contact = { whatsapp: '', telegram: '' }; contactName = ''; consent = false;
       try { sessionStorage.removeItem(key); } catch {}
       if (rememberSavedLead(result, lang)) { location.assign(THANK_YOU_PATH); return; }
       // При отключённом sessionStorage благодарность остаётся доступной в текущем окне.

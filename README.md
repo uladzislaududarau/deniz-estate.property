@@ -13,7 +13,7 @@ npm run check:cloudflare
 
 [Подтверждено] Файлы для редактирования: `showcase/index.html` — страница; `showcase/assets/travertine-refinement.css` — оформление; `quiz.config.mjs` — вопросы и тексты RU/EN; `quiz.mjs` — квиз; `cloudflare/worker.mjs` — API; `migrations` — схема D1. Английский лендинг пока не создан, поэтому ссылки hreflang не публикуются.
 
-[Подтверждено] SEO-домен задаётся build-переменной `SITE_URL`. Без неё действует noindex; с утверждённым доменом сборка создаёт canonical, Open Graph и sitemap.
+[Подтверждено] Production-сборка Cloudflare из main использует https://deniz-estate.property и создаёт canonical, Open Graph и sitemap. Локальные и preview-сборки без SITE_URL остаются noindex; SITE_URL позволяет явно задать домен сборки.
 
 [Требует уточнения] Для запуска нужны ключи бота, chat_id, Resend, отправитель и получатель email, D1, ключ шифрования и утверждённые юридические сведения. Kommo и GA4 не подключены.
 
@@ -22,3 +22,5 @@ npm run check:cloudflare
 [Подтверждено] Базовый тег Google Ads `AW-18527353101` подключён через `showcase/assets/ads-consent.mjs`: загружается после согласия на маркетинг. До согласия все четыре параметра Consent Mode v2 имеют значение denied. Выбор можно изменить через «Настройки cookie» в футере. Событие конверсии не настроено: требуется отдельный conversion label.
 
 [Подтверждено] 02.11.2026 применена миграция D1 в Production, добавлены ключ шифрования (Cloudflare Secret), отправитель и получатель email в переменных панели. Приём заявок включён по указанию владельца. Доставка уведомлений требует отдельной проверки реальной заявкой.
+
+[Подтверждено] Проверка синтаксиса: `npm run check`. Аудит безопасности и Google Ads: [отчёт](docs/SECURITY_ADS_AUDIT.md).

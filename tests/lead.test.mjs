@@ -1,3 +1,4 @@
+import { policyVersion } from '../showcase/assets/quiz.config.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, readdir, readFile } from 'node:fs/promises';
@@ -7,14 +8,14 @@ import { randomUUID } from 'node:crypto';
 import { createApp } from '../server/index.mjs';
 import { createStore } from '../server/store.mjs';
 
-const payload = () => ({ requestId: randomUUID(), name: 'Тестовый клиент', language: 'ru', answers: { purpose: 'investment', propertyType: 'apartment', regions: ['costa-blanca', 'mallorca'], budgets: ['100k-200k', '200k-300k'], timeline: 'soon' }, region: 'marbella', messenger: 'telegram', contact: '@deniz_test', consent: { accepted: true, policyVersion: '2026-11-02' }, website: '' });
+const payload = () => ({ requestId: randomUUID(), name: 'Тестовый клиент', language: 'ru', answers: { purpose: 'investment', propertyType: 'apartment', regions: ['costa-blanca', 'mallorca'], budgets: ['100k-200k', '200k-300k'], timeline: 'soon' }, region: 'marbella', messenger: 'telegram', contact: '@deniz_test', consent: { accepted: true, policyVersion }, website: '' });
 async function harness(t, options = {}) {
   const storage = await mkdtemp(path.join(os.tmpdir(), 'deniz-test-'));
   const app = await createApp({ storage, ...options });
   await new Promise(resolve => app.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => app.close(resolve)));
   const base = `http://127.0.0.1:${app.address().port}`;
-  const post = (body, headers = {}) => fetch(`${base}/api/lead`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) });
+  const post = (body, headers = {}) => fetch(`${base}/api/lead`, { method: 'POST', headers: { Origin: base, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) });
   return { storage, base, post };
 }
 test('Заявка зашифрована, сохраняет несколько бюджетов, повтор не создает дубль', async t => {
@@ -46,7 +47,7 @@ test('Телефон проверяется сервером; Telegram прин�
 });
 test('Без согласия, неизвестные ответы, спам и запросы с чужого сайта отклоняются', async t => {
   const { post } = await harness(t);
-  assert.equal((await post({ ...payload(), consent: { accepted: false, policyVersion: '2026-11-02' } })).status, 422);
+  assert.equal((await post({ ...payload(), consent: { accepted: false, policyVersion } })).status, 422);
   assert.equal((await post({ ...payload(), answers: { ...payload().answers, budgets: [] } })).status, 422);
   assert.equal((await post({ ...payload(), answers: { ...payload().answers, purpose: 'invented' } })).status, 422);
   assert.equal((await post({ ...payload(), website: 'spam' })).status, 422);
@@ -122,7 +123,7 @@ test('Юридические страницы доступны отдельно 
     const html = await response.text();
     assert.match(html, /class="legal-action legal-action-primary" href="\/"/);
     assert.doesNotMatch(html, /quiz\.mjs|data-open-quiz/);
-    assert.match(html, /info@deniz-estate\.com/);
+    assert.match(html, /phewcy\.dev@gmail\.com/);
   }
   const landing = await (await fetch(base + '/')).text();
   assert.match(landing, /href="\/privacy"/);

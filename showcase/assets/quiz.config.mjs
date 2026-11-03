@@ -1,4 +1,4 @@
-export const policyVersion = '2026-11-02';
+export const policyVersion = '2026-11-03';
 export const steps = [
   { id: 'regions', multiple: true, exclusive: 'undecided', title: { ru: 'Какой регион Испании вы рассматриваете?', en: 'Which region of Spain are you considering?' }, options: [
     ['costa-blanca', 'Коста-Бланка', 'Costa Blanca'],
@@ -54,7 +54,7 @@ export const copy = {
     telegramHint: 'Например @username или номер телефона с кодом страны.',
     phoneHint: 'Выберите страну и введите ваш номер телефона без кода страны.',
     consentBefore: 'Я соглашаюсь с ', consentLink: 'условиями обработки персональных данных',
-    consentAfter: ' для получения информации по объектам недвижимости от компании Deniz Estate Limited.',
+    consentAfter: ' для обработки моего запроса оператором сайта SERGEY VAKORIN.',
     dataNote: 'Контакт и ответы используются Deniz Estate для обработки вашего запроса.',
     country: 'Страна и телефонный код', nationalPlaceholder: 'Номер телефона', countryDetected: 'Страну можно изменить.', countryFallback: '', countryLoadError: 'Введите номер целиком с кодом страны, начиная с +.', invalidCountryPhone: 'Проверьте номер и выбранную страну: количество цифр не соответствует формату.',
     invalidPhone: 'Проверьте номер телефона и выбранную страну.',
@@ -82,7 +82,7 @@ export const copy = {
     messenger: 'Preferred contact method', phone: 'Your WhatsApp number', telegram: 'Telegram phone number or username',
      telegramHint: 'For example @username or a phone number with country code.',
     phoneHint: 'Choose your country and enter your phone number without the country code.',
-    consentBefore: 'I agree to the ', consentLink: 'personal data processing terms', consentAfter: ' to receive property information from Deniz Estate Limited.',
+    consentBefore: 'I agree to the ', consentLink: 'personal data processing terms', consentAfter: ' for my enquiry to be processed by website operator SERGEY VAKORIN.',
     dataNote: 'Deniz Estate uses your contact details and answers to handle your request.',
     country: 'Country and calling code', nationalPlaceholder: 'Phone number', countryDetected: 'You can change the country.', countryFallback: '', countryLoadError: 'Enter the full international number starting with +.', invalidCountryPhone: 'Check your number and country: the number length does not match the format.',
     invalidPhone: 'Check your phone number and selected country.', invalidTelegram: 'Enter a Telegram username (at least 5 characters) or an international phone number.',

@@ -1,12 +1,12 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { siteOrigin, renderLanding, renderThankYou, robots, sitemap } from '../server/seo.mjs';
+import { buildSiteOrigin, renderLanding, renderThankYou, robots, sitemap } from '../server/seo.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = path.join(root, 'showcase');
 const output = path.join(root, 'dist');
-const origin = siteOrigin(process.env.SITE_URL);
+const origin = buildSiteOrigin();
 // Удаляется только воспроизводимый результат сборки, исходники и архив не затрагиваются.
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });

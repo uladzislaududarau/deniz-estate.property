@@ -1,3 +1,4 @@
+import { canonicalRedirect, secureResponse } from '../server/security.mjs';
 import { validateLead } from '../server/schema.mjs';
 import { createCloudStore } from './store.mjs';
 
@@ -20,7 +21,7 @@ async function readBody(request) {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 // Зависимость хранилища подменяется только в тестах; боевой обработчик использует D1.
-export function createWorker(storeFactory = createCloudStore) {
+function createHandler(storeFactory = createCloudStore) {
   return {
     async fetch(request, env, ctx) {
       const url = new URL(request.url);
@@ -58,8 +59,19 @@ export function createWorker(storeFactory = createCloudStore) {
       ctx.waitUntil((async () => {
         const store = await storeFactory(env);
         await store.cleanupRateLimits();
+        await store.cleanupExpiredLeads();
         for (const id of await store.pending()) await store.deliver(id);
       })().catch(() => {}));
+    }
+  };
+}
+export function createWorker(storeFactory = createCloudStore) {
+  const handler = createHandler(storeFactory);
+  return {
+    scheduled: handler.scheduled,
+    async fetch(request, env, ctx) {
+      const redirect = canonicalRedirect(request);
+      return secureResponse(redirect || await handler.fetch(request, env, ctx), request);
     }
   };
 }

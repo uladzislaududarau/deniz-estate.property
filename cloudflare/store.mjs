@@ -61,6 +61,11 @@ export async function createCloudStore(env, fetcher = fetch) {
     },
     async cleanupRateLimits() {
       await db.prepare('DELETE FROM lead_rate_limits WHERE expires_at < ?').bind(Date.now()).run();
+    },
+    async cleanupExpiredLeads() {
+      // Удаляются только истёкшие заявки; свежие заявки и ключ шифрования сохраняются.
+      const cutoff = Date.now() - 180 * 86400000;
+      await db.prepare('DELETE FROM leads WHERE id IN (SELECT id FROM leads WHERE created_at < ? LIMIT 500)').bind(cutoff).run();
     }
   };
 }

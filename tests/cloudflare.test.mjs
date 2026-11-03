@@ -81,8 +81,10 @@ async function database(t) {
   const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response("ok"); } };', d1Databases: ['DB'] }));
   t.after(() => mf.dispose());
   const db = await mf.getD1Database('DB');
-  const sql = await readFile(new URL('../migrations/0001_leads.sql', import.meta.url), 'utf8');
-  for (const statement of sql.split(';').filter(part => part.trim())) await db.prepare(statement).run();
+  for (const name of ['0001_leads.sql', '0002_lead_retention.sql']) {
+    const sql = await readFile(new URL('../migrations/' + name, import.meta.url), 'utf8');
+    for (const statement of sql.split(';').filter(part => part.trim())) await db.prepare(statement).run();
+  }
   return db;
 }
 test('D1 сохраняет зашифрованный лид, исключает конкурентные дубли и ограничивает частоту', async t => {
@@ -154,4 +156,22 @@ test('Сбой Resend не теряет сохранённый лид; повт�
   assert.equal(row.email_status, 'sent');
   assert.equal(calls.filter(call => call.url.includes('api.telegram.org')).length, 1);
   for (const call of calls.filter(call => call.url === 'https://api.resend.com/emails')) assert.deepEqual(JSON.parse(call.options.body).to, ['one@example.com', 'two@example.com']);
+});
+
+test('Очистка срока хранения удаляет только заявки старше 180 дней', async t => {
+  const db = await database(t);
+  const now = Date.now();
+  t.mock.method(Date, 'now', () => now);
+  const store = await createCloudStore({ DB: db, LEAD_ENCRYPTION_KEY: secret });
+  const ids = [];
+  for (const [index, age] of [180 * 86400000 + 1, 180 * 86400000, 1000].entries()) {
+    const saved = await store.save({ ...lead(), contact: `@retention_test_${index}` });
+    ids.push(saved.leadId);
+    await db.prepare('UPDATE leads SET created_at = ? WHERE id = ?').bind(now - age, saved.leadId).run();
+  }
+  await store.cleanupExpiredLeads();
+  const remaining = (await db.prepare('SELECT id FROM leads').all()).results.map(row => row.id);
+  assert.equal(remaining.includes(ids[0]), false);
+  assert.equal(remaining.includes(ids[1]), true);
+  assert.equal(remaining.includes(ids[2]), true);
 });
