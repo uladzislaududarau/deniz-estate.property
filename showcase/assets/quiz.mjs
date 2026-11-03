@@ -337,10 +337,12 @@ function renderContact(content, shell, t, { currentMessenger = messenger, measur
     } catch { error.textContent = t.networkError; }
     finally {
       clearTimeout(timeout); submitting = false;
-      for (const control of form.elements) control.disabled = false;
-      submit.removeAttribute('aria-busy');
-      submit.removeAttribute('aria-label');
-      submit.textContent = t.send;
+      if (!success) {
+        for (const control of form.elements) control.disabled = false;
+        submit.removeAttribute('aria-busy');
+        submit.removeAttribute('aria-label');
+        submit.textContent = t.send;
+      }
     }
   });
   content.append(form);
