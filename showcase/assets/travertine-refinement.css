@@ -319,8 +319,6 @@ html.has-js .hero-slide.active {
   margin: 4px 0;
   padding: 16px 0;
   border: 0;
-  border-top: 1px solid var(--travertine-header-rule);
-  border-bottom: 1px solid var(--travertine-header-rule);
   list-style: none;
 }
 
@@ -523,8 +521,7 @@ footer {
   .travertine-services {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--color-rule);
-    border-bottom: 1px solid var(--color-rule);
+    border: 0;
     padding: 16px 0;
     gap: 16px;
   }

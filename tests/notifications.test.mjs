@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { notificationRecipients, channelConfigured, sendNotification } from '../cloudflare/notifications.mjs';
+import { notificationRecipients, channelConfigured, sendNotification, leadMessage } from '../cloudflare/notifications.mjs';
 import { policyVersion } from '../showcase/assets/quiz.config.mjs';
 
 const env = { RESEND_API_KEY: 'test-only', LEAD_EMAIL_FROM: 'Deniz Estate <leads@example.com>', LEAD_NOTIFICATION_EMAILS: ' first@example.com,second@example.com ' };
@@ -9,7 +9,7 @@ const lead = {
   leadId: 'test-lead', name: 'Тест', savedAt: '2026-11-02T12:00:00.000Z', language: 'ru',
   messenger: 'telegram', contact: '@deniz_test',
   answers: { regions: ['mallorca'], purpose: 'investment', propertyType: 'villa', budgets: ['200k-300k'], timeline: 'soon' },
-  consent: { policyVersion, timestamp: '2026-11-02T12:00:00.000Z' }
+  consent: { accepted: true, policyVersion, timestamp: '2026-11-02T12:00:00.000Z' }
 };
 
 test('Список email очищается от пробелов и дублей, невалидный адрес отклоняет весь список', () => {
@@ -58,4 +58,17 @@ test('Wrangler сохраняет DB и переменные панели, пр�
   assert.match(config.d1_databases[0].database_id, /^[\da-f-]{36}$/);
   assert.equal(config.assets.binding, 'ASSETS');
   for (const secret of ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID', 'RESEND_API_KEY', 'LEAD_NOTIFICATION_EMAILS']) assert.equal(config.vars[secret], undefined);
+});
+
+test('Уведомление содержит понятные блоки, местные дату и время без видимого ID', () => {
+  const text = leadMessage(lead);
+  assert.ok(text.startsWith('Заявка с сайта Deniz Estate Property\n\nДата: 02.11.2026\nВремя: 14:00'));
+  assert.match(text, /Имя: Тест\nЯзык: Русский/);
+  assert.match(text, /Способ связи: Telegram\nКонтакт: @deniz_test/);
+  assert.match(text, /Регион Испании:\nМайорка/);
+  assert.match(text, /Согласие на обработку персональных данных: Получено\nДата: 02.11.2026\nВремя: 14:00/);
+  assert.doesNotMatch(text, /test-lead|ID:|2026-11-02T|Telegram —/);
+  assert.match(leadMessage({ ...lead, messenger: 'whatsapp', contact: '+34612345678' }, 'UTC'), /Способ связи: WhatsApp\nКонтакт: \+34612345678/);
+  assert.match(leadMessage(lead, 'UTC'), /Время: 12:00/);
+  assert.match(leadMessage({ ...lead, consent: { ...lead.consent, accepted: false } }), /Не подтверждено/);
 });

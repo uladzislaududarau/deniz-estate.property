@@ -1,6 +1,6 @@
 export const policyVersion = '2026-11-02';
 export const steps = [
-  { id: 'regions', multiple: true, exclusive: 'undecided', title: { ru: 'В каком регионе Испании вы рассматриваете недвижимость?', en: 'Which areas of Spain are you considering?' }, options: [
+  { id: 'regions', multiple: true, exclusive: 'undecided', title: { ru: 'Какой регион Испании вы рассматриваете?', en: 'Which region of Spain are you considering?' }, options: [
     ['costa-blanca', 'Коста-Бланка', 'Costa Blanca'],
     ['costa-del-sol', 'Коста-дель-Соль / Марбелья', 'Costa del Sol / Marbella'],
     ['barcelona', 'Барселона и окрестности', 'Barcelona and surroundings'],
@@ -46,7 +46,7 @@ export const copy = {
   ru: {
     close: 'Закрыть', back: 'Назад', next: 'Продолжить', send: 'Получить', sending: 'Сохраняем заявку…',
     step: 'Шаг', of: 'из', single: 'Выберите один вариант — перейдём к следующему вопросу.', multiple: 'Можно выбрать один или несколько вариантов.',
-    contactTitle: 'Подбор объектов недвижимости в Испании по вашим критериям готов',
+    contactTitle: 'Подбор объектов по вашим критериям готов',
     contactIntro: 'Укажите удобный способ получения.',
     name: 'Ваше имя', namePlaceholder: 'Введите ваше имя', invalidName: 'Укажите ваше имя буквами, до 80 символов.',
     messenger: 'Удобный способ связи', phone: 'Ваш номер WhatsApp', telegram: 'Телефон Telegram или username',
@@ -65,7 +65,7 @@ export const copy = {
     successTitle: 'Благодарим за ваш запрос.',
     successText: 'В ближайшее время мы вышлем вам подборку объектов недвижимости в Испании по вашим критериям выбранным вами способом получения.',
     successMore: 'Также предлагаем вам ознакомиться с проектами недвижимости, доступными на нашем основном сайте.',
-    website: 'Перейти на основной сайт', youtube: 'Просмотреть YouTube', privacyTitle: 'Обработка персональных данных',
+    website: 'Перейти на основной сайт', youtube: 'Просмотреть наш YouTube', privacyTitle: 'Обработка персональных данных',
     privacyIntro: 'Передавая контакт и ответы, вы разрешаете Deniz Estate использовать их для подготовки предложения по недвижимости и связи с вами в выбранном мессенджере.',
     privacyUse: 'В заявку входят ваше имя, цель покупки, тип недвижимости, бюджет, срок покупки и контакт. Они используются для обработки вашего обращения. Это согласие не включает рекламную рассылку.',
     privacyStorage: 'Страна по IP используется для подстановки телефонного кода. Доступ к заявке предназначен уполномоченным сотрудникам Deniz Estate. Для связи используется выбранный вами WhatsApp или Telegram; после подключения CRM заявки будут обрабатываться в Kommo. Эти сервисы обрабатывают данные по собственным правилам.',
@@ -76,7 +76,7 @@ export const copy = {
   en: {
     close: 'Close', back: 'Back', next: 'Continue', send: 'Receive', sending: 'Saving your request…',
     step: 'Step', of: 'of', single: 'Choose one option to continue.', multiple: 'You can select one or more options.',
-    contactTitle: 'Selection of properties in Spain according to your criteria is ready',
+    contactTitle: 'Your property selection is ready',
     contactIntro: 'Choose your preferred delivery method.',
     name: 'Your name', namePlaceholder: 'Enter your name', invalidName: 'Enter your name using letters, up to 80 characters.',
     messenger: 'Preferred contact method', phone: 'Your WhatsApp number', telegram: 'Telegram phone number or username',
@@ -90,7 +90,7 @@ export const copy = {
     networkError: 'We could not save your request. Check your connection and try again. Your answers are saved.',
     rateError: 'Too many attempts. Please try again a little later.',
     successTitle: 'Thank you for your request.', successText: 'We will send your selection shortly using your chosen method.',
-    successMore: 'We also invite you to explore our property projects on the main website.', website: 'Explore our main website', youtube: 'Watch YouTube',
+    successMore: 'We also invite you to explore our property projects on the main website.', website: 'Explore our main website', youtube: 'Watch our YouTube',
     privacyTitle: 'Personal data processing', privacyIntro: 'By providing your contact details and answers, you allow Deniz Estate to use them to prepare a property selection and contact you via your chosen messenger.',
     privacyUse: 'Your request includes your name, purchase purpose, property type, budget, purchase timeframe and contact. These details are used to handle your enquiry. This consent does not include marketing subscriptions.',
     privacyStorage: 'Your IP country is used to suggest a phone calling code. Access to your request is intended for authorised Deniz Estate staff. Communication uses your chosen WhatsApp or Telegram account; once connected, requests will be processed in Kommo CRM. These services process data under their own terms.',

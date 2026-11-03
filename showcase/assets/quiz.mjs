@@ -165,7 +165,11 @@ function render() {
   phoneField?.cancel(); phoneField = undefined;
   dialog.lang = lang;
   dialog.dataset.stage = success ? 'success' : step === steps.length ? 'contact' : 'question';
+  const view = success ? 'success' : step === steps.length ? 'contact' : `question-${step}`;
+  const animate = dialog.open && dialog.dataset.view && dialog.dataset.view !== view;
   const shell = buildShell();
+  if (animate) shell.querySelector('.quiz-content').classList.add('quiz-content-enter');
+  dialog.dataset.view = view;
   dialog.replaceChildren(shell);
   dialog.scrollTop = 0;
   dialog.querySelector('#quiz-title')?.focus({ preventScroll: true });
@@ -199,7 +203,7 @@ function renderQuestion(content, shell, t, currentStep = step) {
       else answers[question.id] = option[0];
       next.disabled = !hasAnswer(question);
       persist();
-      if (!question.multiple) timer = setTimeout(() => { step++; persist(); render(); }, 300);
+      if (!question.multiple) timer = setTimeout(() => { step++; persist(); render(); }, 1800);
     });
     label.append(input, node('span', {}, option[lang === 'en' ? 2 : 1]));
     fieldset.append(label);
