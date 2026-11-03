@@ -93,4 +93,4 @@ const change = button(text.change, () => {
   analytics.focus();
 });
 change.className = 'cookie-settings-link';
-(document.querySelector('.footer-links') || document.querySelector('footer') || document.body).append(change);
+document.querySelector('.footer-links')?.append(change);
