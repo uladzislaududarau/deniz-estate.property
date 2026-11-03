@@ -120,20 +120,8 @@ function buildShell({ currentStep = step, currentMessenger = messenger, complete
   if (complete) {
     content.classList.add('quiz-success');
     heading(content, t.successTitle);
-    content.append(node('p', { class: 'quiz-intro' }, t.successText), node('p', { class: 'quiz-intro' }, t.successMore));
+    content.append(node('p', { class: 'quiz-intro' }, t.successText));
     const actions = node('div', { class: 'quiz-success-links' });
-    const mainBtn = node('a', { class: 'quiz-primary quiz-success-main-btn', href: links.website[lang], target: '_blank', rel: 'noopener noreferrer' });
-    const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    arrowSvg.setAttribute('class', 'quiz-btn-arrow');
-    arrowSvg.setAttribute('viewBox', '0 0 16 16');
-    arrowSvg.setAttribute('width', '16');
-    arrowSvg.setAttribute('height', '16');
-    arrowSvg.setAttribute('aria-hidden', 'true');
-    arrowSvg.setAttribute('focusable', 'false');
-    arrowSvg.setAttribute('fill', 'none');
-    arrowSvg.innerHTML = '<path d="M4.5 11.5L11.5 4.5M11.5 4.5H6.5M11.5 4.5V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    mainBtn.append(node('span', {}, t.website), arrowSvg);
-    actions.append(mainBtn);
     for (const social of links.social) {
       const ytLink = node('a', { class: 'quiz-secondary quiz-success-yt-link', href: social.url, target: '_blank', rel: 'noopener noreferrer' });
       const ytSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
