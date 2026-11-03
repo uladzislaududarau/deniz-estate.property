@@ -665,3 +665,11 @@ footer {
   .travertine-page .quiz-messengers .quiz-choice { gap: 6px; padding-inline: 8px; justify-content: center; }
   .travertine-page .quiz-messenger-text { font-size: 16px; }
 }
+
+/* Плавный первый показ текста без промежуточного системного начертания. */
+html.fonts-loading .intro-column { opacity: 0; }
+html.fonts-ready .intro-column { animation: intro-reveal 240ms ease-out both; }
+@keyframes intro-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  html.fonts-ready .intro-column { animation: none; }
+}

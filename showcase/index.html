@@ -20,6 +20,31 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <meta name="theme-color" content="#111c26">
 
+  <!-- Основные кириллические шрифты запрашиваются до разбора стилей страницы. -->
+  <link rel="preload" href="/assets/montserrat-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    // Фотография и логотип видны сразу; текст проявляется после готовности шрифтов.
+    (() => {
+      if (!document.fonts) return;
+      const root = document.documentElement;
+      root.classList.add('fonts-loading');
+      const reveal = () => {
+        root.classList.remove('fonts-loading');
+        root.classList.add('fonts-ready');
+      };
+      // Ограничение ожидания сохраняет доступ к содержимому при сетевых ошибках.
+      const timeout = setTimeout(reveal, 1800);
+      document.addEventListener('DOMContentLoaded', () => {
+        Promise.all([
+          document.fonts.load('800 32px Montserrat', 'Недвижимость Spain 2026'),
+          document.fonts.load('700 20px Montserrat', 'НАЧАТЬ ПОИСК'),
+          document.fonts.load('500 16px Manrope', 'Недвижимость Spain 2026'),
+          document.fonts.load('700 16px Manrope', 'Объекты 1000+')
+        ]).catch(() => {}).finally(() => { clearTimeout(timeout); reveal(); });
+      }, { once: true });
+    })();
+  </script>
   <!-- Fonts & Styles -->
   <link rel="stylesheet" href="/assets/typography.css">
   <!-- Google Ads AW-18527353101: загрузка после согласия на маркетинговые cookie. -->
